@@ -1,69 +1,46 @@
-'use client';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { db } from '@/lib/db';
+import { cookies } from 'next/headers';
 
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+export default async function AuthRedirectPage() {
+  const session = await auth();
 
-export default function AuthRedirectPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  if (!session?.user) {
+    redirect('/login');
+  }
 
-  useEffect(() => {
-    if (status === 'loading') return;
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true, isApproved: true },
+  });
 
-    if (!session?.user) {
-      router.replace('/login');
-      return;
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Check if there's a pending role from registration
+  // We read from a cookie instead of localStorage since this is a server component
+  const cookieStore = await cookies();
+  const pendingRole = cookieStore.get('edushare_pending_role')?.value;
+
+  if (pendingRole && (pendingRole === 'TEACHER' || pendingRole === 'STUDENT')) {
+    const isApproved = pendingRole === 'STUDENT';
+    await db.user.update({
+      where: { id: session.user.id },
+      data: { role: pendingRole, isApproved },
+    });
+
+    // Role has been set — redirect based on approval
+    if (pendingRole === 'TEACHER') {
+      redirect('/pending-approval');
     }
+    redirect('/student');
+  }
 
-    const pendingRole = localStorage.getItem('edushare_pending_role');
-
-    if (pendingRole && (pendingRole === 'TEACHER' || pendingRole === 'STUDENT')) {
-      fetch('/api/auth/set-role', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: pendingRole }),
-      })
-        .then((res) => res.json())
-        .then(() => {
-          localStorage.removeItem('edushare_pending_role');
-          router.replace(pendingRole === 'TEACHER' ? '/teacher' : '/student');
-        })
-        .catch(() => {
-          router.replace('/student');
-        });
-    } else {
-      const role = (session.user as Record<string, unknown>).role as string;
-      router.replace(role === 'TEACHER' ? '/teacher' : '/student');
-    }
-  }, [session, status, router]);
-
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#F8F7FF',
-      }}
-    >
-      <div style={{ textAlign: 'center' }}>
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            border: '3px solid rgba(108,99,255,0.2)',
-            borderTopColor: '#6C63FF',
-            borderRadius: '50%',
-            animation: 'spin-slow 1s linear infinite',
-            margin: '0 auto 16px',
-          }}
-        />
-        <p style={{ color: '#5A5880', fontFamily: "'Inter', sans-serif" }}>
-          Setting up your account...
-        </p>
-      </div>
-    </div>
-  );
+  // No pending role — redirect based on current role
+  if (user.role === 'ADMIN') redirect('/admin');
+  if (user.role === 'TEACHER' && !user.isApproved) redirect('/pending-approval');
+  if (user.role === 'TEACHER') redirect('/teacher');
+  redirect('/student');
 }

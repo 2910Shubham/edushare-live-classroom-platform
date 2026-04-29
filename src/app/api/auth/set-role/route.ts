@@ -20,9 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
+    const isApproved = parsed.data.role === 'STUDENT';
+
     const user = await db.user.update({
       where: { id: session.user.id },
-      data: { role: parsed.data.role },
+      data: { 
+        role: parsed.data.role,
+        isApproved 
+      },
     });
 
     return NextResponse.json({ role: user.role });

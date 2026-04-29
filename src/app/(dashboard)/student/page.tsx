@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { PageBackground } from '@/components/ui/PageBackground';
 import { StudentClassroomCard } from '@/components/student/ClassroomCard';
+import { JoinClassroomButton } from '@/components/student/JoinClassroomButton';
 
 export default async function StudentDashboard() {
   const session = await auth();
@@ -52,10 +52,7 @@ export default async function StudentDashboard() {
               Ready to learn something new today?
             </p>
           </div>
-          <button className="btn-accent" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 15 }}>
-            <Plus size={18} />
-            Join Classroom
-          </button>
+          <JoinClassroomButton />
         </div>
 
         {/* Classrooms */}
@@ -81,10 +78,7 @@ export default async function StudentDashboard() {
             <p style={{ color: '#5A5880', fontSize: 15, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
               Ask your teacher for a 6-character join code to access materials and live boards.
             </p>
-            <button className="btn-accent" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} />
-              Join Classroom
-            </button>
+            <JoinClassroomButton variant="empty" />
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>

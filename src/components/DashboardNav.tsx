@@ -18,6 +18,11 @@ import {
 import { useState } from 'react';
 import { NotificationBell } from './NotificationBell';
 
+const adminLinks = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/users', label: 'Users', icon: Users },
+];
+
 const teacherLinks = [
   { href: '/teacher', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher/upload', label: 'Upload', icon: Upload },
@@ -28,12 +33,12 @@ const studentLinks = [
   { href: '/student/library', label: 'Library', icon: Library },
 ];
 
-export function DashboardNav({ role }: { role: 'TEACHER' | 'STUDENT' }) {
+export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const links = role === 'TEACHER' ? teacherLinks : studentLinks;
+  const links = role === 'ADMIN' ? adminLinks : role === 'TEACHER' ? teacherLinks : studentLinks;
   const userName = session?.user?.name || 'User';
   const userImage = session?.user?.image;
 
@@ -126,8 +131,8 @@ export function DashboardNav({ role }: { role: 'TEACHER' | 'STUDENT' }) {
                   width: 36,
                   height: 36,
                   borderRadius: '50%',
-                  background: role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
-                  color: role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
+                  background: role === 'ADMIN' ? 'rgba(255,107,157,0.1)' : role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
+                  color: role === 'ADMIN' ? '#FF6B9D' : role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -151,8 +156,8 @@ export function DashboardNav({ role }: { role: 'TEACHER' | 'STUDENT' }) {
               >
                 {userName}
               </p>
-              <span className={role === 'TEACHER' ? 'badge-teacher' : 'badge-student'}>
-                {role === 'TEACHER' ? 'Teacher' : 'Student'}
+              <span className={role === 'ADMIN' ? 'badge-teacher' : role === 'TEACHER' ? 'badge-teacher' : 'badge-student'}>
+                {role === 'ADMIN' ? 'Admin' : role === 'TEACHER' ? 'Teacher' : 'Student'}
               </span>
             </div>
           </div>
@@ -345,8 +350,8 @@ export function DashboardNav({ role }: { role: 'TEACHER' | 'STUDENT' }) {
               width: 36,
               height: 36,
               borderRadius: '50%',
-              background: role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
-              color: role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
+              background: role === 'ADMIN' ? 'rgba(255,107,157,0.1)' : role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
+              color: role === 'ADMIN' ? '#FF6B9D' : role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

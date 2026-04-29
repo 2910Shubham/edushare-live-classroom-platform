@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { PageBackground } from '@/components/ui/PageBackground';
 import { TeacherClassroomCard } from '@/components/teacher/ClassroomCard';
+import { CreateClassroomButton } from '@/components/teacher/CreateClassroomButton';
 
 export default async function TeacherDashboard() {
   const session = await auth();
@@ -108,10 +108,7 @@ export default async function TeacherDashboard() {
           <h2 style={{ fontSize: 20, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Your Classrooms
           </h2>
-          <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', fontSize: 14 }}>
-            <Plus size={16} />
-            Create
-          </button>
+          <CreateClassroomButton />
         </div>
 
         {classrooms.length === 0 ? (
@@ -129,10 +126,7 @@ export default async function TeacherDashboard() {
             <p style={{ color: '#5A5880', fontSize: 15, marginBottom: 24, maxWidth: 300, margin: '0 auto 24px' }}>
               Create your first classroom to get started and share the join code with your students.
             </p>
-            <button className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} />
-              Create Classroom
-            </button>
+            <CreateClassroomButton />
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>

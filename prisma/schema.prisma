@@ -12,8 +12,11 @@ model User {
   id            String    @id @default(cuid())
   name          String
   email         String    @unique
+  emailVerified DateTime?
   image         String?
+  password      String?
   role          Role      @default(STUDENT)
+  isApproved    Boolean   @default(false)
   createdAt     DateTime  @default(now())
 
   taughtClasses Classroom[]      @relation("TeacherClasses")
@@ -25,6 +28,7 @@ model User {
 }
 
 enum Role {
+  ADMIN
   TEACHER
   STUDENT
 }

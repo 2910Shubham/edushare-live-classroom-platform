@@ -14,7 +14,7 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  const role = (session.user as Record<string, unknown>).role as 'TEACHER' | 'STUDENT';
+  const role = (session.user as Record<string, unknown>).role as 'ADMIN' | 'TEACHER' | 'STUDENT';
 
   return (
     <Providers>
