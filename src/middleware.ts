@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/lib/auth.config';
 
-export default async function middleware(req: NextRequest) {
-  const session = await auth();
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+  const session = req.auth;
   const { pathname } = req.nextUrl;
 
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/';
@@ -51,7 +54,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ['/teacher/:path*', '/student/:path*', '/admin/:path*', '/pending-approval', '/login', '/register', '/'],
