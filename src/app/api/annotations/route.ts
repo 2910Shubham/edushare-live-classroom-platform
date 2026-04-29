@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 const saveAnnotationSchema = z.object({
   materialId: z.string().cuid(),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.any()),
 });
 
 export async function POST(req: NextRequest) {

@@ -82,7 +82,7 @@ export function StudentClassroomCard({
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
         <Link
-          href={`/student/smartboard/${id}`}
+          href={`/student/classroom/${id}`}
           className="btn-accent"
           style={{
             flex: 1,
@@ -95,23 +95,8 @@ export function StudentClassroomCard({
             gap: 6,
           }}
         >
-          <Monitor size={16} />
-          Go to Board
-        </Link>
-        <Link
-          href="/student/library"
-          className="btn-secondary"
-          style={{
-            textDecoration: 'none',
-            fontSize: 14,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}
-        >
-          <FileText size={16} />
-          Notes
+          <BookOpen size={16} />
+          View Class
         </Link>
       </div>
     </div>

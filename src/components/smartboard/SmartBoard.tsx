@@ -125,7 +125,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
         </div>
       </div>
 
-      {role === 'TEACHER' && isConnected && (
+      {role === 'TEACHER' && (
         <AnnotationToolbar
           activeTool={activeTool}
           setActiveTool={setActiveTool}
@@ -193,7 +193,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       </div>
 
       {/* Annotation Layer */}
-      {isConnected && (
+      {(role === 'TEACHER' || isConnected) && (
         <AnnotationCanvas 
           classroomId={classroomId} 
           socket={socket} 

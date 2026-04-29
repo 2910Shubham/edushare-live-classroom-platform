@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { PageBackground } from '@/components/ui/PageBackground';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const searchParams = useSearchParams();
   const presetRole = searchParams.get('role');
   const [selectedRole, setSelectedRole] = useState<'TEACHER' | 'STUDENT' | null>(
@@ -323,5 +323,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#6C63FF', fontSize: 16, fontFamily: "'Inter', sans-serif" }}>Loading...</div>
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }

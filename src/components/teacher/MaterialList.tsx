@@ -15,6 +15,10 @@ export function MaterialList({ initialMaterials, classroomId }: { initialMateria
     if (socket && isConnected) {
       socket.emit('board:setMaterial', { classroomId, material });
     }
+    // Dispatch local event so SmartBoard picks it up immediately
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('local:setMaterial', { detail: material }));
+    }
   };
 
   return (

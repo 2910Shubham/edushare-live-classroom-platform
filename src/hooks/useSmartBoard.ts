@@ -38,10 +38,17 @@ export function useSmartBoard(classroomId: string, role: 'TEACHER' | 'STUDENT') 
       }
     });
 
+    // Local override for when socket is disconnected or just for immediate feedback
+    const handleLocalSet = (e: CustomEvent<Material>) => {
+      setActiveMaterial(e.detail);
+    };
+    window.addEventListener('local:setMaterial', handleLocalSet as EventListener);
+
     return () => {
       socket.off('board:setMaterial');
       socket.off('material:new');
       socket.off('presence:update');
+      window.removeEventListener('local:setMaterial', handleLocalSet as EventListener);
     };
   }, [socket, isConnected, classroomId, role]);
 

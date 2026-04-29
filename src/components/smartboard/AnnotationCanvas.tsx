@@ -153,7 +153,7 @@ export function AnnotationCanvas({
   useEffect(() => {
     if (!fabricCanvas || !isTeacher) return;
 
-    const handleCanvasClick = (options: fabric.IEvent<MouseEvent>) => {
+    const handleCanvasClick = (options: fabric.IEvent) => {
       if (activeTool === 'pen' || activeTool === 'highlighter' || activeTool === 'eraser') return;
       if (!options.pointer) return;
 
