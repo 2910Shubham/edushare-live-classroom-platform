@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useSmartBoard } from '@/hooks/useSmartBoard';
 import { useAnnotation } from '@/hooks/useAnnotation';
 import { AnnotationToolbar } from '../teacher/AnnotationToolbar';
-import { Sparkles, Maximize2, Minimize2, Palette } from 'lucide-react';
+import { Sparkles, Maximize2, Minimize2, Palette, Link2, X, Loader2 } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Material } from '@/types';
 
@@ -66,8 +66,14 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
   } | null>(null);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [annotationActive, setAnnotationActive] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlValue, setUrlValue] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
   const boardRef = useRef<HTMLDivElement>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
   const nextZIndex = useRef(10);
+  const urlImageCounter = useRef(1);
 
   const {
     activeTool,
@@ -236,6 +242,93 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
     };
   }, [addImageToBoard, removeImageFromBoard]);
 
+  // Auto-focus URL input when popover opens
+  useEffect(() => {
+    if (showUrlInput && urlInputRef.current) {
+      urlInputRef.current.focus();
+    }
+  }, [showUrlInput]);
+
+  // Add image from URL
+  const handleAddImageFromUrl = useCallback(() => {
+    const trimmed = urlValue.trim();
+    if (!trimmed) {
+      setUrlError('Please enter a URL');
+      return;
+    }
+
+    // Basic URL validation
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(trimmed);
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Invalid protocol');
+      }
+    } catch {
+      setUrlError('Please enter a valid HTTP/HTTPS URL');
+      return;
+    }
+
+    setUrlLoading(true);
+    setUrlError('');
+
+    // Load the image to validate it and get natural dimensions
+    const img = new Image();
+
+    img.onload = () => {
+      // Create a pseudo-Material for the URL image
+      const pseudoMaterial: Material = {
+        id: `url-image-${Date.now()}-${urlImageCounter.current++}`,
+        classroomId,
+        uploadedById: 'url-import',
+        title: parsedUrl.hostname + parsedUrl.pathname.split('/').pop()?.substring(0, 20) || 'Web Image',
+        type: 'IMAGE',
+        fileUrl: trimmed,
+        createdAt: new Date(),
+      };
+
+      addImageToBoard(pseudoMaterial);
+
+      // Set natural dimensions in imageStates after a tick
+      setTimeout(() => {
+        setImageStates((prev) =>
+          prev.map((s) =>
+            s.material.id === pseudoMaterial.id
+              ? {
+                  ...s,
+                  naturalWidth: img.naturalWidth,
+                  naturalHeight: img.naturalHeight,
+                  width: Math.min(400, img.naturalWidth),
+                  height: Math.min(400, img.naturalHeight),
+                }
+              : s
+          )
+        );
+      }, 50);
+
+      setUrlValue('');
+      setUrlLoading(false);
+      setShowUrlInput(false);
+    };
+
+    img.onerror = () => {
+      setUrlError('Could not load image. Check the URL or try a different one.');
+      setUrlLoading(false);
+    };
+
+    // Set a timeout for slow loads
+    const timeout = setTimeout(() => {
+      if (urlLoading) {
+        setUrlError('Image took too long to load. Try again.');
+        setUrlLoading(false);
+      }
+    }, 15000);
+
+    img.src = trimmed;
+
+    return () => clearTimeout(timeout);
+  }, [urlValue, classroomId, addImageToBoard, urlLoading]);
+
   return (
     <div
       ref={boardRef}
@@ -289,6 +382,123 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       >
         {/* Left: Annotation toggle & board info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+          {/* Add Image from URL button */}
+          {role === 'TEACHER' && (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => {
+                  setShowUrlInput(!showUrlInput);
+                  setUrlError('');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  border: 'none',
+                  background: showUrlInput
+                    ? 'linear-gradient(135deg, #43E8D8, #36D5C5)'
+                    : isDarkBg
+                    ? 'rgba(255,255,255,0.12)'
+                    : 'rgba(255,255,255,0.9)',
+                  color: showUrlInput ? 'white' : isDarkBg ? '#E0E0FF' : '#2D2B55',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: showUrlInput
+                    ? '0 4px 12px rgba(67,232,216,0.3)'
+                    : '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'all 0.2s',
+                }}
+                title="Add image from URL"
+              >
+                <Link2 size={14} /> URL
+              </button>
+
+              {/* URL Input Popover */}
+              {showUrlInput && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: 8,
+                    background: 'rgba(255,255,255,0.98)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: 16,
+                    padding: 16,
+                    boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+                    border: '1px solid rgba(108,99,255,0.1)',
+                    minWidth: 340,
+                    zIndex: 100,
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#2D2B55' }}>Add Image from URL</span>
+                    <button
+                      onClick={() => { setShowUrlInput(false); setUrlError(''); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 8, display: 'flex' }}
+                    >
+                      <X size={16} color="#A8A6C8" />
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      ref={urlInputRef}
+                      type="url"
+                      placeholder="https://example.com/image.png"
+                      value={urlValue}
+                      onChange={(e) => { setUrlValue(e.target.value); setUrlError(''); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleAddImageFromUrl(); }}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: 10,
+                        border: urlError ? '1.5px solid #FF4757' : '1.5px solid rgba(108,99,255,0.15)',
+                        fontSize: 13,
+                        outline: 'none',
+                        background: 'rgba(108,99,255,0.03)',
+                        color: '#2D2B55',
+                        transition: 'border-color 0.2s',
+                      }}
+                    />
+                    <button
+                      onClick={handleAddImageFromUrl}
+                      disabled={urlLoading}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 10,
+                        border: 'none',
+                        background: urlLoading ? '#A8A6C8' : 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
+                        color: 'white',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: urlLoading ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'all 0.2s',
+                        boxShadow: '0 4px 12px rgba(108,99,255,0.25)',
+                      }}
+                    >
+                      {urlLoading ? <Loader2 size={14} className="animate-spin" /> : null}
+                      {urlLoading ? 'Loading...' : 'Add'}
+                    </button>
+                  </div>
+                  {urlError && (
+                    <p style={{ color: '#FF4757', fontSize: 12, marginTop: 8, fontWeight: 500 }}>{urlError}</p>
+                  )}
+                  <p style={{ color: '#A8A6C8', fontSize: 11, marginTop: 8 }}>
+                    Paste any public image URL. Supports PNG, JPG, GIF, WebP, SVG.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <button
             onClick={toggleAnnotation}
             style={{
