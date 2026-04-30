@@ -1,56 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSocket } from './useSocket';
+import { useState, useCallback } from 'react';
 import { Material } from '@/types';
-import { toast } from 'sonner';
 
 export function useSmartBoard(classroomId: string, role: 'TEACHER' | 'STUDENT') {
-  const { socket, isConnected } = useSocket();
-  const [activeMaterial, setActiveMaterial] = useState<Material | null>(null);
-  const [studentCount, setStudentCount] = useState(0);
+  const [boardImages, setBoardImages] = useState<Material[]>([]);
+  const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF');
 
-  useEffect(() => {
-    if (!socket || !isConnected) return;
-
-    // Join room
-    socket.emit('join:classroom', { classroomId, role });
-
-    // Listeners
-    socket.on('board:setMaterial', (data: { classroomId: string; material: Material }) => {
-      if (data.classroomId === classroomId) {
-        setActiveMaterial(data.material);
-        if (role === 'STUDENT') {
-          toast.info('Teacher changed the board material');
-        }
-      }
+  const addImageToBoard = useCallback((material: Material) => {
+    setBoardImages((prev) => {
+      // Don't add duplicates
+      if (prev.some((m) => m.id === material.id)) return prev;
+      return [...prev, material];
     });
+  }, []);
 
-    socket.on('material:new', (material: Material) => {
-      if (material.classroomId === classroomId && role === 'STUDENT') {
-        toast.success(`New material uploaded: ${material.title}`);
-      }
-    });
+  const removeImageFromBoard = useCallback((materialId: string) => {
+    setBoardImages((prev) => prev.filter((m) => m.id !== materialId));
+  }, []);
 
-    socket.on('presence:update', (data: { classroomId: string; count: number }) => {
-      if (data.classroomId === classroomId) {
-        setStudentCount(data.count);
-      }
-    });
+  const clearBoard = useCallback(() => {
+    setBoardImages([]);
+  }, []);
 
-    // Local override for when socket is disconnected or just for immediate feedback
-    const handleLocalSet = (e: CustomEvent<Material>) => {
-      setActiveMaterial(e.detail);
-    };
-    window.addEventListener('local:setMaterial', handleLocalSet as EventListener);
-
-    return () => {
-      socket.off('board:setMaterial');
-      socket.off('material:new');
-      socket.off('presence:update');
-      window.removeEventListener('local:setMaterial', handleLocalSet as EventListener);
-    };
-  }, [socket, isConnected, classroomId, role]);
-
-  return { activeMaterial, setActiveMaterial, socket, isConnected, studentCount };
+  return {
+    boardImages,
+    setBoardImages,
+    addImageToBoard,
+    removeImageFromBoard,
+    clearBoard,
+    backgroundColor,
+    setBackgroundColor,
+  };
 }
