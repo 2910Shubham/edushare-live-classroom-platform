@@ -1,5 +1,11 @@
 import type { NextAuthConfig } from 'next-auth';
 
+type SessionUserWithAuth = {
+  id?: string;
+  role?: unknown;
+  isApproved?: unknown;
+};
+
 export const authConfig = {
   trustHost: true,
   providers: [], // Providers are added in auth.ts to avoid Edge Runtime issues
@@ -12,9 +18,10 @@ export const authConfig = {
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role;
-        (session.user as any).isApproved = token.isApproved;
+        const sessionUser = session.user as typeof session.user & SessionUserWithAuth;
+        sessionUser.id = token.id as string;
+        sessionUser.role = token.role;
+        sessionUser.isApproved = token.role === 'ADMIN' || token.isApproved;
       }
       return session;
     },

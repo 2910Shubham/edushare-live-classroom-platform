@@ -14,8 +14,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const currentApproval = (session.user as Record<string, unknown>).isApproved as boolean;
-    if (currentApproval) {
+    const currentUser = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true, isApproved: true },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (currentUser.role === 'ADMIN' || currentUser.isApproved) {
       return NextResponse.json({ error: 'Only admins can change approved user roles' }, { status: 403 });
     }
 

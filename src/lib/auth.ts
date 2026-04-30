@@ -58,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (dbUser) {
           token.id = dbUser.id;
           token.role = dbUser.role;
-          token.isApproved = dbUser.isApproved;
+          token.isApproved = dbUser.role === 'ADMIN' || dbUser.isApproved;
         }
       }
       return token;
