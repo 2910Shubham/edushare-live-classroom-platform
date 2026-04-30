@@ -396,3 +396,128 @@ pre {
     linear-gradient(90deg, rgba(108, 99, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
 }
+
+/* =============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================= */
+
+/* Tablet — screens up to 768px */
+@media (max-width: 768px) {
+  /* Dashboard header adjustments */
+  .dashboard-header h1 {
+    font-size: 22px !important;
+  }
+  .dashboard-header p {
+    font-size: 14px !important;
+  }
+
+  /* Stats grid: 1 column on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Classroom cards: 1 column on mobile */
+  .classroom-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Teacher classroom page: stack sidebar and board */
+  .classroom-layout {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .classroom-sidebar {
+    width: 100% !important;
+    max-height: none !important;
+    padding-right: 0 !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .classroom-board {
+    min-height: 500px !important;
+    margin-top: 16px !important;
+  }
+
+  /* Classroom top bar */
+  .classroom-topbar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 12px 16px !important;
+    border-radius: 14px !important;
+    margin-bottom: 16px !important;
+  }
+  .classroom-topbar h1 {
+    font-size: 18px !important;
+  }
+
+  /* edu-card padding reduction */
+  .edu-card {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Student classroom material items */
+  .material-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  /* Smart board toolbar — tighter on mobile */
+  .board-topbar {
+    left: 8px !important;
+    right: 8px !important;
+    top: 8px !important;
+  }
+  .board-topbar-left {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .board-topbar-right {
+    gap: 4px !important;
+  }
+
+  /* Section headers */
+  .section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  /* Student header: stack when too narrow */
+  .student-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+}
+
+/* Small phones — screens up to 480px */
+@media (max-width: 480px) {
+  .dashboard-header h1 {
+    font-size: 20px !important;
+  }
+
+  .edu-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .classroom-board {
+    min-height: 400px !important;
+  }
+
+  /* Smaller buttons on small screens */
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    font-size: 13px !important;
+    padding: 8px 14px !important;
+  }
+}

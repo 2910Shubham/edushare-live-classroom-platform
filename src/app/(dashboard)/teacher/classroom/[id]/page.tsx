@@ -34,9 +34,10 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
+    <div className="classroom-layout" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
       {/* Top Bar */}
       <div 
+        className="classroom-topbar"
         style={{ 
           background: '#FFFFFF', 
           borderRadius: 20, 
@@ -76,15 +77,15 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
       </div>
 
       {/* Main Content: Sidebar + Board */}
-      <div style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0 }}>
+      <div className="classroom-layout" style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0 }}>
         {/* Sidebar */}
-        <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto', paddingRight: 8 }}>
+        <div className="classroom-sidebar" style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto', paddingRight: 8 }}>
           <UploadPanel classroomId={classroomId} />
           <MaterialList initialMaterials={classroom.materials as any} classroomId={classroomId} />
         </div>
 
         {/* Board Area */}
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div className="classroom-board" style={{ flex: 1, position: 'relative' }}>
           {/* We will add AnnotationToolbar here in Phase 3 */}
           <SmartBoard classroomId={classroomId} role="TEACHER" />
         </div>

@@ -35,7 +35,7 @@ export default async function StudentDashboard() {
       <PageBackground variant="student" />
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Header */}
-        <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="dashboard-header student-header" style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1
               style={{
@@ -81,7 +81,7 @@ export default async function StudentDashboard() {
             <JoinClassroomButton variant="empty" />
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
+          <div className="classroom-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
             {classrooms.map((c) => (
               <StudentClassroomCard
                 key={c.id}

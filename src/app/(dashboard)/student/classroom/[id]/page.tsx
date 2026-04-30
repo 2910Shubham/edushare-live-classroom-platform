@@ -68,7 +68,7 @@ export default async function StudentClassroomPage({ params }: { params: Promise
                 <p style={{ color: '#A8A6C8', fontSize: 15 }}>No materials have been uploaded yet.</p>
               ) : (
                 classroom.materials.map((material) => (
-                  <div key={material.id} style={{ padding: 16, border: '1px solid rgba(108,99,255,0.1)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.5)' }}>
+                  <div key={material.id} className="material-item" style={{ padding: 16, border: '1px solid rgba(108,99,255,0.1)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.5)' }}>
                     <div>
                       <h3 style={{ fontWeight: 600, color: '#2D2B55', fontSize: 16 }}>{material.title}</h3>
                       <div style={{ display: 'flex', gap: 12, marginTop: 4, fontSize: 13, color: '#5A5880' }}>

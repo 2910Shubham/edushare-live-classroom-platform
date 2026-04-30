@@ -368,6 +368,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
 
       {/* Top bar controls */}
       <div
+        className="board-topbar"
         style={{
           position: 'absolute',
           top: 12,
@@ -381,7 +382,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
         }}
       >
         {/* Left: Annotation toggle & board info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+        <div className="board-topbar-left" style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
           {/* Add Image from URL button */}
           {role === 'TEACHER' && (
             <div style={{ position: 'relative' }}>
@@ -543,7 +544,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
         </div>
 
         {/* Right: Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+        <div className="board-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
           {/* Background color picker */}
           <div style={{ position: 'relative' }}>
             <button
