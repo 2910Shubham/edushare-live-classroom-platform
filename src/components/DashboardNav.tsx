@@ -21,6 +21,9 @@ import { NotificationBell } from './NotificationBell';
 const adminLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/teacher', label: 'Classrooms', icon: Monitor },
+  { href: '/teacher/upload', label: 'Upload', icon: Upload },
+  { href: '/student', label: 'Student View', icon: BookOpen },
 ];
 
 const teacherLinks = [

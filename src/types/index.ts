@@ -1,4 +1,4 @@
-export type Role = 'TEACHER' | 'STUDENT';
+export type Role = 'ADMIN' | 'TEACHER' | 'STUDENT';
 
 export type MaterialType = 'IMAGE' | 'PDF' | 'PPT' | 'TEXT';
 

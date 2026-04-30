@@ -25,22 +25,18 @@ export default async function AuthRedirectPage() {
   const pendingRole = cookieStore.get('edushare_pending_role')?.value;
 
   if (pendingRole && (pendingRole === 'TEACHER' || pendingRole === 'STUDENT')) {
-    const isApproved = pendingRole === 'STUDENT';
     await db.user.update({
       where: { id: session.user.id },
-      data: { role: pendingRole, isApproved },
+      data: { role: pendingRole, isApproved: false },
     });
 
     // Role has been set — redirect based on approval
-    if (pendingRole === 'TEACHER') {
-      redirect('/pending-approval');
-    }
-    redirect('/student');
+    redirect('/pending-approval');
   }
 
   // No pending role — redirect based on current role
   if (user.role === 'ADMIN') redirect('/admin');
-  if (user.role === 'TEACHER' && !user.isApproved) redirect('/pending-approval');
+  if (!user.isApproved) redirect('/pending-approval');
   if (user.role === 'TEACHER') redirect('/teacher');
   redirect('/student');
 }

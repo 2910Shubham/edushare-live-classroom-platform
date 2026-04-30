@@ -5,6 +5,7 @@ import cloudinary from '@/lib/cloudinary';
 import { publishToRedis } from '@/lib/redis';
 import { notifyStudents } from '@/lib/notify';
 import { ratelimit } from '@/lib/ratelimit';
+import type { UploadApiResponse } from 'cloudinary';
 
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     const role = (session.user as Record<string, unknown>).role as string;
-    if (role !== 'TEACHER') {
+    if (role !== 'TEACHER' && role !== 'ADMIN') {
       return NextResponse.json({ error: 'Only teachers can upload' }, { status: 403 });
     }
 
@@ -46,11 +47,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unsupported file type' }, { status: 415 });
     }
 
-    // Verify teacher owns the classroom
+    // Verify the teacher owns the classroom. Admins may upload anywhere.
     const classroom = await db.classroom.findUnique({
       where: { id: classroomId },
     });
-    if (!classroom || classroom.teacherId !== session.user.id) {
+    if (!classroom || (role !== 'ADMIN' && classroom.teacherId !== session.user.id)) {
       return NextResponse.json({ error: 'Invalid classroom' }, { status: 403 });
     }
 
@@ -58,18 +59,19 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload to Cloudinary
-    const uploadResult = await new Promise((resolve, reject) => {
+    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { folder: 'edushare', resource_type: 'auto' },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else if (result) resolve(result);
+          else reject(new Error('Upload failed'));
         }
       );
       uploadStream.end(buffer);
     });
 
-    const fileUrl = (uploadResult as any).secure_url;
+    const fileUrl = uploadResult.secure_url;
     const mimeType = file.type;
 
     let materialType: 'IMAGE' | 'PDF' | 'PPT' | 'TEXT' = 'TEXT';

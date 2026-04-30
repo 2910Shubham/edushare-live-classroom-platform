@@ -17,7 +17,7 @@ export function PendingApprovalClient() {
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: '#2D2B55', marginBottom: 16 }}>Pending Approval</h1>
           <p style={{ color: '#5A5880', lineHeight: 1.6, marginBottom: 24 }}>
-            Your teacher account has been created successfully. Please wait while an administrator reviews and approves your account.
+            Your account has been created successfully. Please wait while an administrator reviews and approves your access.
           </p>
           <button onClick={() => window.location.reload()} className="btn-primary" style={{ width: '100%', marginBottom: 12 }}>
             Check Status

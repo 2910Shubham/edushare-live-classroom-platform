@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         email: parsed.data.email,
         password: hashedPassword,
         role: parsed.data.role,
-        isApproved: parsed.data.role === 'STUDENT',
+        isApproved: false,
       },
     });
 

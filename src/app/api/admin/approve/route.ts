@@ -6,6 +6,7 @@ import { z } from 'zod';
 const approveSchema = z.object({
   userId: z.string(),
   approve: z.boolean(),
+  role: z.enum(['ADMIN', 'TEACHER', 'STUDENT']).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -23,10 +24,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
+    if (parsed.data.userId === session.user.id && !parsed.data.approve) {
+      return NextResponse.json({ error: 'You cannot reject your own admin account' }, { status: 400 });
+    }
+
     if (parsed.data.approve) {
       await db.user.update({
         where: { id: parsed.data.userId },
-        data: { isApproved: true },
+        data: {
+          isApproved: true,
+          ...(parsed.data.role ? { role: parsed.data.role } : {}),
+        },
       });
     } else {
       await db.user.delete({

@@ -11,8 +11,10 @@ export default async function TeacherUploadPage() {
     redirect('/login');
   }
 
+  const role = (session.user as Record<string, unknown>).role as string;
+
   const classrooms = await db.classroom.findMany({
-    where: { teacherId: session.user.id },
+    where: role === 'ADMIN' ? {} : { teacherId: session.user.id },
     select: { id: true, name: true, subject: true },
     orderBy: { createdAt: 'desc' },
   });

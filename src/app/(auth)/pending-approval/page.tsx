@@ -13,7 +13,7 @@ export default async function PendingApprovalPage() {
   const isApproved = (session.user as Record<string, unknown>).isApproved as boolean;
 
   if (isApproved) {
-    redirect(role === 'TEACHER' ? '/teacher' : '/student');
+    redirect(role === 'ADMIN' ? '/admin' : role === 'TEACHER' ? '/teacher' : '/student');
   }
 
   return <PendingApprovalClient />;

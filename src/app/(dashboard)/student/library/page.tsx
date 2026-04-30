@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { NotesCard } from '@/components/student/NotesCard';
 import { BookOpen } from 'lucide-react';
 import { PageBackground } from '@/components/ui/PageBackground';
+import type { Prisma } from '@prisma/client';
 
 export default async function StudentLibraryPage({
   searchParams,
@@ -12,13 +13,15 @@ export default async function StudentLibraryPage({
 }) {
   const session = await auth();
 
-  if (!session?.user || (session.user as any).role !== 'STUDENT') {
+  const role = (session?.user as Record<string, unknown> | undefined)?.role as string | undefined;
+
+  if (!session?.user || (role !== 'STUDENT' && role !== 'ADMIN')) {
     redirect('/login');
   }
 
   const classroomId = searchParams.classroomId;
 
-  const whereClause: any = { userId: session.user.id };
+  const whereClause: Prisma.StudentNoteWhereInput = { userId: session.user.id };
   if (classroomId) {
     whereClause.material = { classroomId };
   }

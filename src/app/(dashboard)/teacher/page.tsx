@@ -14,9 +14,10 @@ export default async function TeacherDashboard() {
 
   const user = session.user;
   const userName = user.name?.split(' ')[0] || 'Teacher';
+  const role = (session.user as Record<string, unknown>).role as string;
 
   const classrooms = await db.classroom.findMany({
-    where: { teacherId: user.id },
+    where: role === 'ADMIN' ? {} : { teacherId: user.id },
     include: {
       _count: { select: { enrollments: true, materials: true } },
     },
@@ -106,7 +107,7 @@ export default async function TeacherDashboard() {
         {/* Classrooms */}
         <div className="section-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Your Classrooms
+            {role === 'ADMIN' ? 'All Classrooms' : 'Your Classrooms'}
           </h2>
           <CreateClassroomButton />
         </div>

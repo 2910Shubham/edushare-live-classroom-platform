@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from '@/lib/auth.config';
 
@@ -10,7 +9,11 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/';
-  const isProtectedRoute = pathname.startsWith('/teacher') || pathname.startsWith('/student');
+  const isProtectedRoute =
+    pathname.startsWith('/teacher') ||
+    pathname.startsWith('/student') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/pending-approval');
 
   // Not authenticated & trying to access protected route -> redirect to login
   if (!session?.user && isProtectedRoute) {
@@ -30,7 +33,7 @@ export default auth((req) => {
     }
 
     // Pending approval
-    if (role === 'TEACHER' && !isApproved && !pathname.startsWith('/pending-approval') && !isAuthRoute) {
+    if (role !== 'ADMIN' && !isApproved && !pathname.startsWith('/pending-approval') && !isAuthRoute) {
       return NextResponse.redirect(new URL('/pending-approval', req.url));
     }
 
@@ -43,12 +46,12 @@ export default auth((req) => {
     }
 
     // Teacher routes — only for TEACHER role
-    if (pathname.startsWith('/teacher') && role !== 'TEACHER') {
+    if (pathname.startsWith('/teacher') && role !== 'TEACHER' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/student', req.url));
     }
 
     // Student routes — only for STUDENT role
-    if (pathname.startsWith('/student') && role !== 'STUDENT') {
+    if (pathname.startsWith('/student') && role !== 'STUDENT' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/teacher', req.url));
     }
   }

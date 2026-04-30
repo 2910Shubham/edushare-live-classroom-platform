@@ -1,9 +1,9 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { AdminDashboardClient } from './AdminDashboardClient';
+import { AdminDashboardClient } from '../AdminDashboardClient';
 
-export default async function AdminPage() {
+export default async function AdminUsersPage() {
   const session = await auth();
   const role = (session?.user as Record<string, unknown>)?.role;
   const currentUserId = session?.user?.id;
@@ -26,7 +26,7 @@ export default async function AdminPage() {
 
   return (
     <div style={{ padding: '40px' }}>
-      <h1 style={{ fontSize: 32, fontWeight: 700, color: '#2D2B55', marginBottom: 24 }}>Admin Dashboard</h1>
+      <h1 style={{ fontSize: 32, fontWeight: 700, color: '#2D2B55', marginBottom: 24 }}>User Management</h1>
       <AdminDashboardClient initialUsers={users} currentUserId={currentUserId} />
     </div>
   );

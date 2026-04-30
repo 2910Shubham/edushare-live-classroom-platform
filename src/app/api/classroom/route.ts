@@ -24,6 +24,17 @@ export async function GET() {
 
     const role = (session.user as Record<string, unknown>).role as string;
 
+    if (role === 'ADMIN') {
+      const classrooms = await db.classroom.findMany({
+        include: {
+          teacher: { select: { id: true, name: true, image: true } },
+          _count: { select: { enrollments: true, materials: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      return NextResponse.json(classrooms);
+    }
+
     if (role === 'TEACHER') {
       const classrooms = await db.classroom.findMany({
         where: { teacherId: session.user.id },
@@ -62,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     const role = (session.user as Record<string, unknown>).role as string;
-    if (role !== 'TEACHER') {
+    if (role !== 'TEACHER' && role !== 'ADMIN') {
       return NextResponse.json({ error: 'Only teachers can create classrooms' }, { status: 403 });
     }
 

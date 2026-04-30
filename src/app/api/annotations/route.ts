@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const role = (session.user as Record<string, unknown>).role as string;
-    if (role !== 'TEACHER') {
+    if (role !== 'TEACHER' && role !== 'ADMIN') {
       return NextResponse.json({ error: 'Only teachers can save annotations' }, { status: 403 });
     }
 

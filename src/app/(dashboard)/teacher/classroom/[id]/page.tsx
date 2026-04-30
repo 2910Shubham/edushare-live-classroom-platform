@@ -4,13 +4,16 @@ import { db } from '@/lib/db';
 import { SmartBoard } from '@/components/smartboard/SmartBoard';
 import { UploadPanel } from '@/components/teacher/UploadPanel';
 import { MaterialList } from '@/components/teacher/MaterialList';
-import { Users, StopCircle, Share2 } from 'lucide-react';
+import { Users, StopCircle } from 'lucide-react';
 import Link from 'next/link';
+import type { Material } from '@/types';
 
 export default async function TeacherClassroomPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
 
-  if (!session?.user || (session.user as any).role !== 'TEACHER') {
+  const role = (session?.user as Record<string, unknown> | undefined)?.role as string | undefined;
+
+  if (!session?.user || (role !== 'TEACHER' && role !== 'ADMIN')) {
     redirect('/login');
   }
 
@@ -29,7 +32,7 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
     },
   });
 
-  if (!classroom || classroom.teacherId !== session.user.id) {
+  if (!classroom || (role !== 'ADMIN' && classroom.teacherId !== session.user.id)) {
     redirect('/teacher');
   }
 
@@ -81,7 +84,7 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
         {/* Sidebar */}
         <div className="classroom-sidebar" style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto', paddingRight: 8 }}>
           <UploadPanel classroomId={classroomId} />
-          <MaterialList initialMaterials={classroom.materials as any} classroomId={classroomId} />
+          <MaterialList initialMaterials={classroom.materials as Material[]} classroomId={classroomId} />
         </div>
 
         {/* Board Area */}
