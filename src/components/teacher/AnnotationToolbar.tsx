@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Highlighter, Eraser, Type, Square, Circle, Trash2, Save } from 'lucide-react';
+import { Pencil, Highlighter, Eraser, Type, Trash2, Save } from 'lucide-react';
 import { ToolType } from '@/hooks/useAnnotation';
 
 interface AnnotationToolbarProps {
@@ -82,8 +82,6 @@ export function AnnotationToolbar({
         <ToolButton tool="highlighter" icon={Highlighter} />
         <ToolButton tool="eraser" icon={Eraser} />
         <ToolButton tool="text" icon={Type} />
-        <ToolButton tool="rectangle" icon={Square} />
-        <ToolButton tool="circle" icon={Circle} />
       </div>
 
       <div style={{ height: 1, background: 'rgba(108,99,255,0.1)' }} />

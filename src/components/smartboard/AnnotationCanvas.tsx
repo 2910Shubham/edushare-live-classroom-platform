@@ -25,6 +25,7 @@ export function AnnotationCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<fabric.Canvas | null>(null);
   const activeToolRef = useRef<ToolType>(activeTool);
+  const isErasingRef = useRef(false);
 
   // Keep ref in sync
   useEffect(() => {
@@ -63,19 +64,6 @@ export function AnnotationCanvas({
       resizeCanvas();
     });
 
-    // When a path is created by the eraser brush, mark it with
-    // globalCompositeOperation = 'destination-out' so it visually
-    // cuts through all previously drawn content — just like a real eraser.
-    // This only removes the exact pixels under the eraser stroke.
-    canvas.on('path:created', (e: any) => {
-      if (activeToolRef.current === 'eraser' && e.path) {
-        e.path.globalCompositeOperation = 'destination-out';
-        e.path.selectable = false;
-        e.path.evented = false;
-        canvas.renderAll();
-      }
-    });
-
     setFabricCanvas(canvas);
     if (onCanvasReady) onCanvasReady(canvas);
 
@@ -98,6 +86,12 @@ export function AnnotationCanvas({
       if (fabricCanvas.freeDrawingBrush) {
         fabricCanvas.freeDrawingBrush.color = color;
         fabricCanvas.freeDrawingBrush.width = lineWidth;
+        // Reset any globalCompositeOperation override from eraser mode
+        const brush = fabricCanvas.freeDrawingBrush as any;
+        if (brush._origSetBrushStyles) {
+          brush._setBrushStyles = brush._origSetBrushStyles;
+          delete brush._origSetBrushStyles;
+        }
       }
     } else if (activeTool === 'highlighter') {
       fabricCanvas.isDrawingMode = true;
@@ -114,25 +108,43 @@ export function AnnotationCanvas({
           ? hexToRgb(color)
           : color;
         fabricCanvas.freeDrawingBrush.width = lineWidth * 3;
+        const brush = fabricCanvas.freeDrawingBrush as any;
+        if (brush._origSetBrushStyles) {
+          brush._setBrushStyles = brush._origSetBrushStyles;
+          delete brush._origSetBrushStyles;
+        }
       }
     } else if (activeTool === 'eraser') {
-      // Eraser uses drawing mode with a special brush.
-      // The path:created handler above applies 'destination-out'
-      // composite operation so it cuts through existing annotations
-      // pixel-by-pixel — only erasing the exact portion dragged over.
+      // Eraser: use drawing mode but override the brush to render with
+      // globalCompositeOperation 'destination-out'. This makes the stroke
+      // invisible on the top canvas (no black) and erases annotations
+      // on the main canvas where dragged — pixel by pixel.
       fabricCanvas.isDrawingMode = true;
       fabricCanvas.selection = false;
-      fabricCanvas.defaultCursor = `url("data:image/svg+xml,${encodeURIComponent(
-        `<svg xmlns='http://www.w3.org/2000/svg' width='${lineWidth * 5 + 4}' height='${lineWidth * 5 + 4}' viewBox='0 0 ${lineWidth * 5 + 4} ${lineWidth * 5 + 4}'><circle cx='${(lineWidth * 5 + 4) / 2}' cy='${(lineWidth * 5 + 4) / 2}' r='${(lineWidth * 5) / 2}' fill='none' stroke='%236C63FF' stroke-width='1.5' stroke-dasharray='3,2'/></svg>`
-      )}") ${(lineWidth * 5 + 4) / 2} ${(lineWidth * 5 + 4) / 2}, crosshair`;
+
+      // Custom eraser cursor — dashed circle showing eraser size
+      const eraserSize = lineWidth * 5 + 4;
+      fabricCanvas.freeDrawingCursor = `url("data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns='http://www.w3.org/2000/svg' width='${eraserSize}' height='${eraserSize}' viewBox='0 0 ${eraserSize} ${eraserSize}'><circle cx='${eraserSize / 2}' cy='${eraserSize / 2}' r='${(eraserSize - 4) / 2}' fill='rgba(108,99,255,0.08)' stroke='%236C63FF' stroke-width='1.5' stroke-dasharray='3,2'/></svg>`
+      )}") ${eraserSize / 2} ${eraserSize / 2}, crosshair`;
+
       if (fabricCanvas.freeDrawingBrush) {
-        // Color doesn't matter visually since we use destination-out,
-        // but it needs to be opaque for the composite op to work
         fabricCanvas.freeDrawingBrush.color = 'rgba(0,0,0,1)';
         fabricCanvas.freeDrawingBrush.width = lineWidth * 5;
+
+        // Override _setBrushStyles to set destination-out on the context
+        // so the stroke is transparent DURING drawing (no black flash)
+        const brush = fabricCanvas.freeDrawingBrush as any;
+        if (!brush._origSetBrushStyles) {
+          brush._origSetBrushStyles = brush._setBrushStyles;
+        }
+        brush._setBrushStyles = function (ctx: CanvasRenderingContext2D) {
+          brush._origSetBrushStyles.call(this, ctx);
+          ctx.globalCompositeOperation = 'destination-out';
+        };
       }
     } else {
-      // text, rectangle, circle tools
+      // text tool
       fabricCanvas.isDrawingMode = false;
       fabricCanvas.selection = false;
       fabricCanvas.defaultCursor = 'crosshair';
@@ -140,53 +152,42 @@ export function AnnotationCanvas({
     }
   }, [fabricCanvas, activeTool, color, lineWidth, isTeacher]);
 
-  // Handle Object Creation Tools (Rect, Circle, Text)
+  // Mark eraser paths with destination-out on the final path object
+  useEffect(() => {
+    if (!fabricCanvas) return;
+
+    const handlePathCreated = (e: any) => {
+      if (activeToolRef.current === 'eraser' && e.path) {
+        e.path.globalCompositeOperation = 'destination-out';
+        e.path.selectable = false;
+        e.path.evented = false;
+        fabricCanvas.renderAll();
+      }
+    };
+
+    fabricCanvas.on('path:created', handlePathCreated);
+    return () => {
+      fabricCanvas.off('path:created', handlePathCreated);
+    };
+  }, [fabricCanvas]);
+
+  // Handle Text tool (click to add text)
   useEffect(() => {
     if (!fabricCanvas || !isTeacher) return;
 
     const handleCanvasClick = (options: fabric.IEvent) => {
-      if (
-        activeTool === 'pen' ||
-        activeTool === 'highlighter' ||
-        activeTool === 'eraser'
-      )
-        return;
+      if (activeTool !== 'text') return;
       if (!options.pointer) return;
 
-      if (activeTool === 'text') {
-        const text = new fabric.IText('Text', {
-          left: options.pointer.x,
-          top: options.pointer.y,
-          fontFamily: 'Inter',
-          fill: color,
-          fontSize: 24 * (lineWidth / 3),
-        });
-        fabricCanvas.add(text);
-        fabricCanvas.setActiveObject(text);
-      } else if (activeTool === 'rectangle') {
-        const rect = new fabric.Rect({
-          left: options.pointer.x,
-          top: options.pointer.y,
-          fill: 'transparent',
-          stroke: color,
-          strokeWidth: lineWidth,
-          width: 100,
-          height: 100,
-        });
-        fabricCanvas.add(rect);
-        fabricCanvas.setActiveObject(rect);
-      } else if (activeTool === 'circle') {
-        const circle = new fabric.Circle({
-          left: options.pointer.x,
-          top: options.pointer.y,
-          fill: 'transparent',
-          stroke: color,
-          strokeWidth: lineWidth,
-          radius: 50,
-        });
-        fabricCanvas.add(circle);
-        fabricCanvas.setActiveObject(circle);
-      }
+      const text = new fabric.IText('Text', {
+        left: options.pointer.x,
+        top: options.pointer.y,
+        fontFamily: 'Inter',
+        fill: color,
+        fontSize: 24 * (lineWidth / 3),
+      });
+      fabricCanvas.add(text);
+      fabricCanvas.setActiveObject(text);
     };
 
     fabricCanvas.on('mouse:down', handleCanvasClick);

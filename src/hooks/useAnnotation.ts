@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-export type ToolType = 'pen' | 'highlighter' | 'eraser' | 'text' | 'rectangle' | 'circle';
+export type ToolType = 'pen' | 'highlighter' | 'eraser' | 'text';
 
 export function useAnnotation() {
   const [activeTool, setActiveTool] = useState<ToolType>('pen');
