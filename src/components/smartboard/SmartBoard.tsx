@@ -7,6 +7,13 @@ import { AnnotationToolbar } from '../teacher/AnnotationToolbar';
 import { Sparkles, Maximize2, Minimize2, Palette, Link2, X, Loader2 } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Material } from '@/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { DocumentViewer } from './DocumentViewer';
 
 const AnnotationCanvas = dynamic(
   () => import('./AnnotationCanvas').then((mod) => mod.AnnotationCanvas),
@@ -65,6 +72,9 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
     origH: number;
   } | null>(null);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [expandedImage, setExpandedImage] = useState<Material | null>(null);
+  const [documentViewerMaterial, setDocumentViewerMaterial] = useState<Material | null>(null);
+  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
   const [annotationActive, setAnnotationActive] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlValue, setUrlValue] = useState('');
@@ -777,6 +787,11 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
                 />
               ) : (
                 <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDocumentViewerMaterial(imgState.material);
+                    setIsDocumentViewerOpen(true);
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -786,6 +801,15 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
                     justifyContent: 'center',
                     background: isDarkBg ? 'rgba(255,255,255,0.08)' : 'rgba(108,99,255,0.04)',
                     gap: 8,
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                    position: 'relative',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = isDarkBg ? 'rgba(255,255,255,0.12)' : 'rgba(108,99,255,0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = isDarkBg ? 'rgba(255,255,255,0.08)' : 'rgba(108,99,255,0.04)';
                   }}
                 >
                   <span style={{ fontSize: 32 }}>📄</span>
@@ -804,6 +828,25 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
                   >
                     {imgState.material.title}
                   </span>
+                  {/* Click hint */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 8,
+                      right: 8,
+                      background: 'rgba(108,99,255,0.9)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      fontSize: '10px',
+                      fontWeight: 500,
+                      opacity: 0,
+                      transition: 'opacity 0.2s',
+                    }}
+                    className="document-hint"
+                  >
+                    Click to open
+                  </div>
                 </div>
               )}
 
@@ -866,6 +909,22 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
         })}
       </div>
 
+      {/* Universal Document Viewer */}
+      <DocumentViewer
+        material={documentViewerMaterial}
+        isOpen={isDocumentViewerOpen}
+        onClose={() => {
+          setIsDocumentViewerOpen(false);
+          setDocumentViewerMaterial(null);
+        }}
+      />
+
+      {/* CSS for hover effects */}
+      <style jsx>{`
+        div:hover .document-hint {
+          opacity: 1 !important;
+        }
+      `}</style>
 
     </div>
   );

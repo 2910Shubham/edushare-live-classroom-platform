@@ -17,6 +17,25 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ];
 
+/** Raw uploads need a real file extension in public_id or Office/Google viewers cannot detect type. */
+function rawUploadPublicId(file: File): string {
+  const name = file.name?.trim() || '';
+  let ext = '';
+  if (/\.(pdf|ppt|pptx)$/i.test(name)) {
+    ext = name.slice(name.lastIndexOf('.')).toLowerCase();
+  }
+  if (!ext) {
+    if (file.type === 'application/pdf') ext = '.pdf';
+    else if (file.type === 'application/vnd.ms-powerpoint') ext = '.ppt';
+    else ext = '.pptx';
+  }
+  let base = name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name;
+  base = base.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 72);
+  if (!base) base = 'file';
+  const unique = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  return `${base}_${unique}${ext}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -58,16 +77,26 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary
+    const isPdf = file.type === 'application/pdf';
+    const isPpt =
+      file.type === 'application/vnd.ms-powerpoint' ||
+      file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+
+    // PDFs/PPT as raw + public access avoids /image/upload PDF delivery quirks and matches Cloudinary docs for documents.
+    // Note: Cloudinary may still return 401 for PDF/ZIP until "Allow delivery of PDF and ZIP files" is enabled (Dashboard → Settings → Security).
+    const uploadOptions = {
+      folder: 'edushare',
+      access_mode: 'public' as const,
+      resource_type: (isPdf || isPpt ? 'raw' : 'auto') as 'raw' | 'auto',
+      ...(isPdf || isPpt ? { public_id: rawUploadPublicId(file) } : {}),
+    };
+
     const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: 'edushare', resource_type: 'auto' },
-        (error, result) => {
-          if (error) reject(error);
-          else if (result) resolve(result);
-          else reject(new Error('Upload failed'));
-        }
-      );
+      const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+        if (error) reject(error);
+        else if (result) resolve(result);
+        else reject(new Error('Upload failed'));
+      });
       uploadStream.end(buffer);
     });
 

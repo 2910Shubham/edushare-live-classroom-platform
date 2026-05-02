@@ -11,18 +11,22 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface PDFViewerProps {
   url: string;
+  /** When true, page changes are local only (onPageChange is not called). Navigation still works. */
   readOnly?: boolean;
   currentPage?: number;
   onPageChange?: (page: number) => void;
+  /** Called when the PDF fails to load (e.g. try a fallback URL). */
+  onLoadError?: (error: Error) => void;
 }
 
-export function PDFViewer({ url, readOnly = false, currentPage = 1, onPageChange }: PDFViewerProps) {
+export function PDFViewer({ url, readOnly = false, currentPage = 1, onPageChange, onLoadError }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(currentPage);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
+  // Keep internal page in sync when parent changes `currentPage` (e.g. new document).
   useEffect(() => {
-    setPageNumber(currentPage);
+    queueMicrotask(() => setPageNumber(currentPage));
   }, [currentPage]);
 
   useEffect(() => {
@@ -76,6 +80,7 @@ export function PDFViewer({ url, readOnly = false, currentPage = 1, onPageChange
         <Document
           file={url}
           onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={(err) => onLoadError?.(err instanceof Error ? err : new Error(String(err)))}
           loading={
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, color: '#6C63FF' }}>
               <Loader2 className="animate-spin" size={32} />
@@ -117,15 +122,15 @@ export function PDFViewer({ url, readOnly = false, currentPage = 1, onPageChange
         >
           <button
             type="button"
-            disabled={pageNumber <= 1 || readOnly}
+            disabled={pageNumber <= 1}
             onClick={previousPage}
             style={{ 
               background: 'rgba(108,99,255,0.08)', 
               border: 'none', 
               borderRadius: 8, 
               padding: 6, 
-              cursor: (pageNumber <= 1 || readOnly) ? 'not-allowed' : 'pointer',
-              opacity: (pageNumber <= 1 || readOnly) ? 0.5 : 1,
+              cursor: pageNumber <= 1 ? 'not-allowed' : 'pointer',
+              opacity: pageNumber <= 1 ? 0.5 : 1,
               color: '#6C63FF',
               display: 'flex'
             }}
@@ -139,15 +144,15 @@ export function PDFViewer({ url, readOnly = false, currentPage = 1, onPageChange
           
           <button
             type="button"
-            disabled={pageNumber >= numPages || readOnly}
+            disabled={pageNumber >= numPages}
             onClick={nextPage}
             style={{ 
               background: 'rgba(108,99,255,0.08)', 
               border: 'none', 
               borderRadius: 8, 
               padding: 6, 
-              cursor: (pageNumber >= numPages || readOnly) ? 'not-allowed' : 'pointer',
-              opacity: (pageNumber >= numPages || readOnly) ? 0.5 : 1,
+              cursor: pageNumber >= numPages ? 'not-allowed' : 'pointer',
+              opacity: pageNumber >= numPages ? 0.5 : 1,
               color: '#6C63FF',
               display: 'flex'
             }}
