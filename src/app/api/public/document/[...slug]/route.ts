@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string[] } }
+  { params }: { params: Promise<{ slug: string[] }> }
 ) {
   try {
     // Reconstruct the original Cloudinary URL from the slug
-    const slug = params.slug.join('/');
-    const cloudinaryUrl = `https://res.cloudinary.com/${slug}`;
+    const { slug } = await params;
+    const cloudinaryUrl = `https://res.cloudinary.com/${slug.join('/')}`;
     
     console.log('Public Document API: Requesting:', cloudinaryUrl);
     
@@ -71,7 +71,10 @@ export async function GET(
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string[] }> }
+) {
   return new NextResponse(null, {
     status: 200,
     headers: {
