@@ -45,7 +45,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
     }
 
-    let response = await fetchDelivery(decodedUrl);
+    // For raw Cloudinary URLs, try to convert to public URL first
+    let fetchUrl = decodedUrl;
+    const parsed = parseResCloudinaryUrl(decodedUrl);
+    
+    if (parsed && parsed.resourceType === 'raw') {
+      console.log('Proxy: Converting raw Cloudinary URL to public URL');
+      // Try to get a signed URL for raw resources
+      const signed = signedCloudinaryUrl(parsed);
+      if (signed) {
+        console.log('Proxy: Using signed URL for raw resource');
+        fetchUrl = signed;
+      }
+    }
+    
+    let response = await fetchDelivery(fetchUrl);
     const firstCldError = response.headers.get('x-cld-error');
 
     if (!response.ok && response.status === 401) {

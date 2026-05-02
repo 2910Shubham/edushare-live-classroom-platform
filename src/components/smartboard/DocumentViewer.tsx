@@ -41,10 +41,29 @@ interface DocumentViewerProps {
 function proxyDocumentUrl(origin: string, material: Pick<Material, 'type' | 'fileUrl' | 'mimeType'>): string {
   const { fileUrl, type, mimeType } = material;
   const params = new URLSearchParams({ url: fileUrl });
-  if (type === 'PPT' && !/\.(ppt|pptx)(\?|$)/i.test(fileUrl)) {
-    const ext = mimeType === 'application/vnd.ms-powerpoint' ? 'ppt' : 'pptx';
-    params.set('deliveryExt', ext);
+  
+  if (type === 'PPT') {
+    // Enhanced extension detection for Cloudinary URLs
+    const hasExtension = /\.(ppt|pptx)(\?|$)/i.test(fileUrl);
+    
+    if (!hasExtension) {
+      // Improved MIME type detection for PPT files
+      let ext = 'pptx'; // Default to pptx for modern files
+      
+      if (mimeType === 'application/vnd.ms-powerpoint' || 
+          mimeType === 'application/mspowerpoint' ||
+          mimeType === 'application/x-mspowerpoint') {
+        ext = 'ppt';
+      } else if (mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
+                 mimeType === 'application/zip' && fileUrl.includes('pptx')) {
+        ext = 'pptx';
+      }
+      
+      params.set('deliveryExt', ext);
+      console.log(`PPT: Adding extension ${ext} for MIME type ${mimeType}`);
+    }
   }
+  
   return `${origin}/api/proxy/document?${params.toString()}`;
 }
 
@@ -54,8 +73,27 @@ function proxyDocumentUrl(origin: string, material: Pick<Material, 'type' | 'fil
  * In production, proxy-first can normalize Content-Type and apply signed Cloudinary URLs.
  */
 function buildIframeViewerUrls(material: Pick<Material, 'type' | 'fileUrl' | 'mimeType'>, origin: string): string[] {
-  const { type, fileUrl } = material;
-  const directUrl = encodeURIComponent(fileUrl);
+  const { type, fileUrl, mimeType } = material;
+  
+  // For direct URLs, convert raw URLs to publicly accessible URLs
+  let enhancedFileUrl = fileUrl;
+  
+  // Convert Cloudinary raw URLs to image URLs for external viewer compatibility
+  if (fileUrl.includes('/raw/upload/')) {
+    console.log('PPT Debug: Converting raw URL to public URL');
+    enhancedFileUrl = fileUrl.replace('/raw/upload/', '/image/upload/');
+    console.log('PPT Debug: Converted URL:', enhancedFileUrl);
+  }
+  
+  // Add deliveryExt parameter if needed for PPT files
+  if (type === 'PPT' && !/\.(ppt|pptx)(\?|$)/i.test(enhancedFileUrl)) {
+    const ext = mimeType === 'application/vnd.ms-powerpoint' ? 'ppt' : 'pptx';
+    const separator = enhancedFileUrl.includes('?') ? '&' : '?';
+    enhancedFileUrl = `${enhancedFileUrl}${separator}deliveryExt=${ext}`;
+    console.log(`PPT Debug: Added deliveryExt=${ext} to direct URL`);
+  }
+  
+  const directUrl = encodeURIComponent(enhancedFileUrl);
   const proxyAbsolute = proxyDocumentUrl(origin, material);
   const encodedProxyUrl = encodeURIComponent(proxyAbsolute);
 
@@ -74,10 +112,60 @@ function buildIframeViewerUrls(material: Pick<Material, 'type' | 'fileUrl' | 'mi
   const gviewProxy = `https://docs.google.com/gview?url=${encodedProxyUrl}&embedded=true`;
   const gviewDirect = `https://docs.google.com/gview?url=${directUrl}&embedded=true`;
 
+  // PPT-specific debugging
   if (type === 'PPT') {
-    return localDev
-      ? [officeDirect, googleDirect, gviewDirect, officeProxy, googleProxy, gviewProxy]
-      : [officeProxy, officeDirect, googleProxy, googleDirect, gviewProxy, gviewDirect];
+    console.log('PPT Debug - File URL:', fileUrl);
+    console.log('PPT Debug - MIME Type:', mimeType);
+    console.log('PPT Debug - Proxy URL:', proxyAbsolute);
+    console.log('PPT Debug - Local Dev:', localDev);
+    
+    // For PPT files with /raw/upload/ URLs, prioritize proxy for better handling
+    const isRawUrl = fileUrl.includes('/raw/upload/');
+    
+    let urls;
+    if (localDev) {
+      // For localhost, create a public document URL that external viewers can access
+      console.log('PPT Debug: Using localhost strategy with public document endpoint');
+      
+      // Create a public document URL from the Cloudinary URL
+      let publicDocUrl = '';
+      try {
+        if (fileUrl.includes('res.cloudinary.com')) {
+          // Extract the Cloudinary path and create a public URL
+          const urlParts = fileUrl.split('res.cloudinary.com/');
+          if (urlParts.length > 1) {
+            const cloudinaryPath = urlParts[1];
+            publicDocUrl = `${origin}/api/public/document/${cloudinaryPath}`;
+            console.log('PPT Debug: Created public document URL:', publicDocUrl);
+          }
+        }
+      } catch (e) {
+        console.log('PPT Debug: Failed to create public document URL:', e);
+      }
+      
+      if (publicDocUrl) {
+        const encodedPublicDocUrl = encodeURIComponent(publicDocUrl);
+        urls = [
+          officeDirect, 
+          googleDirect, 
+          gviewDirect,
+          `https://view.officeapps.live.com/op/embed.aspx?src=${encodedPublicDocUrl}`,
+          `https://docs.google.com/viewer?url=${encodedPublicDocUrl}&embedded=true`,
+          officeProxy // fallback
+        ];
+      } else {
+        urls = [officeDirect, googleDirect, gviewDirect, officeProxy, googleProxy, gviewProxy];
+      }
+    } else if (isRawUrl) {
+      console.log('PPT Debug: Using production + raw URL strategy - prioritize proxy');
+      urls = [officeProxy, googleProxy, gviewProxy, officeDirect, googleDirect, gviewDirect];
+    } else {
+      console.log('PPT Debug: Using production strategy');
+      urls = [officeProxy, officeDirect, googleProxy, googleDirect, gviewProxy, gviewDirect];
+    }
+    
+    console.log('PPT Debug - Viewer URLs:', urls);
+    return urls;
   }
 
   return localDev
