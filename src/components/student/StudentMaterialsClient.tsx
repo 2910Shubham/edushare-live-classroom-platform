@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Download, FileText, Image as ImageIcon, Maximize2, Minimize2, Presentation, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Download, FileText, Maximize2, Minimize2, Presentation, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { DocumentViewer } from '@/components/smartboard/DocumentViewer';
 import type { MaterialType } from '@/types';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 type ClientMaterial = {
   id: string;
@@ -30,6 +31,7 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
   const APP_TOPBAR_OFFSET_PX = 64;
 
   const isImage = selected?.type === 'IMAGE';
+  const isPreviewOpen = !!selected;
 
   const documentViewerMaterial = useMemo(() => {
     if (!selected || selected.type === 'IMAGE') return null;
@@ -43,9 +45,14 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
 
   const openPreview = (m: ClientMaterial) => {
     setSelected(m);
+  };
+
+  // Deterministic state whenever a new item opens
+  useEffect(() => {
+    if (!selected) return;
     setImageZoom(1);
     setImageMax(false);
-  };
+  }, [selected?.id]);
 
   return (
     <>
@@ -141,148 +148,52 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
       </div>
 
       {/* Preview overlay */}
-      {selected && isImage && (
-        <div
-          className="student-material-preview-overlay"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.55)',
-            zIndex: 20000,
-            display: 'flex',
-            alignItems: imageMax ? 'flex-start' : 'center',
-            justifyContent: 'center',
-            padding: imageMax ? 0 : 10,
-          }}
-          onPointerDown={(e) => {
-            // Only close when tapping the backdrop (prevents "tap-through" reopening)
-            if (e.target === e.currentTarget) {
-              setImageMax(false);
-              setSelected(null);
-            }
-          }}
+      <Dialog
+        open={isPreviewOpen && isImage}
+        onOpenChange={(open) => {
+          if (!open) {
+            setImageMax(false);
+            setSelected(null);
+          }
+        }}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="student-image-preview-dialog"
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={`student-material-preview-card ${imageMax ? 'is-max' : ''}`}
-            style={{
-              width: imageMax ? '100vw' : '92vw',
-              height: imageMax
-                ? `calc(100vh - env(safe-area-inset-top, 0px) - ${APP_TOPBAR_OFFSET_PX}px)`
-                : '88vh',
-              maxWidth: imageMax ? '100vw' : 1200,
-              background: 'white',
-              borderRadius: imageMax ? 0 : 16,
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: imageMax ? 'none' : '0 25px 50px rgba(0,0,0,0.25)',
-              marginTop: imageMax
-                ? `calc(env(safe-area-inset-top, 0px) + ${APP_TOPBAR_OFFSET_PX}px)`
-                : 0,
-            }}
-          >
-            <div
-              className="student-material-preview-header"
-              style={{
-                padding: '10px 12px',
-                borderBottom: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                paddingTop: 'calc(10px + env(safe-area-inset-top, 0px))',
-              }}
-            >
-              <div
-                className="student-material-preview-titleRow"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: '#1f2937',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {selected.title}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#6b7280' }}>{selected.type}</div>
+          {selected && isImage && (
+            <div className={`student-image-preview ${imageMax ? 'is-max' : ''}`}>
+              <div className="student-image-preview__header">
+                <div className="student-image-preview__title">
+                  <div className="student-image-preview__name">{selected.title}</div>
+                  <div className="student-image-preview__meta">{selected.type}</div>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <div className="student-image-preview__actions">
                   <a
                     href={selected.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="student-material-preview-openBtn"
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(108,99,255,0.2)',
-                      background: 'white',
-                      fontWeight: 800,
-                      color: '#2D2B55',
-                      textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      whiteSpace: 'nowrap',
-                    }}
+                    className="student-image-preview__open"
+                    onClick={(e) => e.stopPropagation()}
+                    title="Open / download"
                   >
                     <Download size={16} />
-                    Open
+                    <span className="student-image-preview__openText">Open</span>
                   </a>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setImageMax((v) => !v);
-                    }}
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      border: '1px solid #d1d5db',
-                      background: 'white',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    className="student-image-preview__iconBtn"
+                    onClick={() => setImageMax((v) => !v)}
                     title={imageMax ? 'Minimize' : 'Maximize'}
                   >
                     {imageMax ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                   </button>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    className="student-image-preview__closeBtn"
+                    onClick={() => {
                       setImageMax(false);
                       setSelected(null);
-                    }}
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      border: 'none',
-                      background: '#ef4444',
-                      color: 'white',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                     }}
                     title="Close"
                   >
@@ -291,128 +202,49 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
                 </div>
               </div>
 
-              <div
-                className="student-material-preview-controlsRow"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  overflowX: 'auto',
-                  paddingBottom: 2,
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
+              <div className="student-image-preview__controls">
                 <button
                   type="button"
+                  className="student-image-preview__iconBtn"
                   onClick={() => setImageZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    border: '1px solid #d1d5db',
-                    background: 'white',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
                   title="Zoom out"
                 >
                   <ZoomOut size={16} />
                 </button>
-                <div
-                  style={{
-                    minWidth: 64,
-                    textAlign: 'center',
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: '#374151',
-                    flexShrink: 0,
-                  }}
-                >
-                  {Math.round(imageZoom * 100)}%
-                </div>
+                <div className="student-image-preview__zoom">{Math.round(imageZoom * 100)}%</div>
                 <button
                   type="button"
+                  className="student-image-preview__iconBtn"
                   onClick={() => setImageZoom((z) => Math.min(5, +(z + 0.25).toFixed(2)))}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    border: '1px solid #d1d5db',
-                    background: 'white',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
                   title="Zoom in"
                 >
                   <ZoomIn size={16} />
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setImageZoom(1);
-                  }}
-                  style={{
-                    height: 36,
-                    padding: '0 10px',
-                    borderRadius: 10,
-                    border: '1px solid #d1d5db',
-                    background: 'white',
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    fontWeight: 900,
-                    color: '#374151',
-                    flexShrink: 0,
-                    whiteSpace: 'nowrap',
-                  }}
+                  className="student-image-preview__reset"
+                  onClick={() => setImageZoom(1)}
                   title="Reset zoom"
                 >
                   Reset
                 </button>
-            </div>
-            </div>
+              </div>
 
-            <div
-              className="student-material-preview-body"
-              style={{
-                flex: 1,
-                minHeight: 0,
-                overflow: 'auto',
-                background: '#f3f4f6',
-              }}
-            >
-              <div
-                style={{
-                  padding: 12,
-                  minHeight: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'flex-start',
-                }}
-              >
+              <div className="student-image-preview__body">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selected.fileUrl}
                   alt={selected.title}
+                  className="student-image-preview__img"
                   style={{
                     transform: `scale(${imageZoom})`,
-                    transformOrigin: 'top center',
-                    maxWidth: '100%',
-                    height: 'auto',
-                    borderRadius: 12,
-                    background: 'white',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
                   }}
                 />
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Document preview uses existing viewer */}
       {selected && !isImage && (
@@ -424,21 +256,174 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
       )}
 
       <style jsx>{`
-        /* Make the card feel larger on phones, with safe-area padding */
+        :global(.student-image-preview-dialog) {
+          width: calc(100vw - 20px) !important;
+          max-width: 1100px !important;
+          height: 86vh !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+
+        .student-image-preview {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        .student-image-preview__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 10px 12px;
+          background: #f9fafb;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .student-image-preview__title {
+          min-width: 0;
+        }
+        .student-image-preview__name {
+          font-size: 14px;
+          font-weight: 800;
+          color: #1f2937;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 58vw;
+        }
+        .student-image-preview__meta {
+          font-size: 12px;
+          color: #6b7280;
+        }
+
+        .student-image-preview__actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .student-image-preview__open {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          border-radius: 10px;
+          border: 1px solid rgba(108, 99, 255, 0.2);
+          background: white;
+          color: #2d2b55;
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+
+        .student-image-preview__iconBtn {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          border: 1px solid #d1d5db;
+          background: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .student-image-preview__closeBtn {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          border: none;
+          background: #ef4444;
+          color: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .student-image-preview__controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background: #ffffff;
+          border-bottom: 1px solid #f0f1f4;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .student-image-preview__zoom {
+          min-width: 64px;
+          text-align: center;
+          font-size: 12px;
+          font-weight: 900;
+          color: #374151;
+          flex-shrink: 0;
+        }
+
+        .student-image-preview__reset {
+          height: 36px;
+          padding: 0 10px;
+          border-radius: 10px;
+          border: 1px solid #d1d5db;
+          background: white;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 900;
+          color: #374151;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .student-image-preview__body {
+          flex: 1;
+          min-height: 0;
+          overflow: auto;
+          background: #f3f4f6;
+          padding: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+        }
+
+        .student-image-preview__img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 12px;
+          background: white;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+          transform-origin: top center;
+        }
+
+        /* Fullscreen/maximized mode: place below app bar and use remaining height */
+        .student-image-preview.is-max {
+          border-radius: 0;
+        }
+        /* (Dialog sizing handled via :global selector above) */
+
         @media (max-width: 520px) {
-          .student-material-preview-overlay {
-            padding: 0;
-          }
-          /* Only force fullscreen layout when maximized */
-          .student-material-preview-card.is-max {
+          :global(.student-image-preview-dialog) {
             width: 100vw !important;
-            height: calc(100vh - env(safe-area-inset-top, 0px) - 64px) !important;
             max-width: 100vw !important;
+            height: calc(100vh - env(safe-area-inset-top, 0px) - ${APP_TOPBAR_OFFSET_PX}px) !important;
+            margin-top: calc(env(safe-area-inset-top, 0px) + ${APP_TOPBAR_OFFSET_PX}px) !important;
             border-radius: 0 !important;
-            margin-top: calc(env(safe-area-inset-top, 0px) + 64px) !important;
           }
-          .student-material-preview-openBtn {
-            padding: 8px 10px !important;
+          .student-image-preview {
+            border-radius: 0;
+          }
+          .student-image-preview__openText {
+            display: none;
+          }
+          .student-image-preview__name {
+            max-width: 52vw;
           }
         }
       `}</style>
