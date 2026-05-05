@@ -64,6 +64,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
   const [dragState, setDragState] = useState<{
     id: string;
     type: 'move' | 'resize';
+    pointerId: number;
     startX: number;
     startY: number;
     origX: number;
@@ -132,9 +133,9 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
     );
   }, []);
 
-  // Mouse handlers for drag/resize
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent, id: string, type: 'move' | 'resize') => {
+  // Pointer handlers for drag/resize (mouse + touch + pen)
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, id: string, type: 'move' | 'resize') => {
       if (isAnnotating) return;
       e.preventDefault();
       e.stopPropagation();
@@ -142,9 +143,15 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       if (!img) return;
       bringToFront(id);
       setSelectedImageId(id);
+
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {}
+
       setDragState({
         id,
         type,
+        pointerId: e.pointerId,
         startX: e.clientX,
         startY: e.clientY,
         origX: img.x,
@@ -159,7 +166,8 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
   useEffect(() => {
     if (!dragState) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerId !== dragState.pointerId) return;
       const dx = e.clientX - dragState.startX;
       const dy = e.clientY - dragState.startY;
 
@@ -177,15 +185,18 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       );
     };
 
-    const handleMouseUp = () => {
+    const endDrag = (e: PointerEvent) => {
+      if (e.pointerId !== dragState.pointerId) return;
       setDragState(null);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointercancel', endDrag);
     };
   }, [dragState]);
 
@@ -761,9 +772,10 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
                   : '0 4px 16px rgba(0,0,0,0.1)',
                 transition: dragState?.id === imgState.material.id ? 'none' : 'box-shadow 0.2s, border 0.2s',
                 userSelect: 'none',
+                touchAction: isAnnotating ? 'auto' : 'none',
                 pointerEvents: isAnnotating ? 'none' : 'auto',
               }}
-              onMouseDown={(e) => handleMouseDown(e, imgState.material.id, 'move')}
+              onPointerDown={(e) => handlePointerDown(e, imgState.material.id, 'move')}
               onClick={(e) => {
                 e.stopPropagation();
                 if (!isAnnotating) {
@@ -854,7 +866,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
               {isSelected && (
                 <>
                   <div
-                    onMouseDown={(e) => handleMouseDown(e, imgState.material.id, 'resize')}
+                    onPointerDown={(e) => handlePointerDown(e, imgState.material.id, 'resize')}
                     style={{
                       position: 'absolute',
                       right: 0,
@@ -864,6 +876,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
                       cursor: 'nwse-resize',
                       background: 'linear-gradient(135deg, transparent 50%, #6C63FF 50%)',
                       borderRadius: '0 0 6px 0',
+                      touchAction: 'none',
                     }}
                   />
                   {/* Remove button */}
