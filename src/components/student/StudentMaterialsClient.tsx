@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Download, FileText, Maximize2, Minimize2, Presentation, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { Download, FileText, Presentation, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { DocumentViewer } from '@/components/smartboard/DocumentViewer';
 import type { MaterialType } from '@/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -27,7 +27,6 @@ function formatDate(date: string): string {
 export function StudentMaterialsClient({ materials }: { materials: ClientMaterial[] }) {
   const [selected, setSelected] = useState<ClientMaterial | null>(null);
   const [imageZoom, setImageZoom] = useState(1);
-  const [imageMax, setImageMax] = useState(false);
   const APP_TOPBAR_OFFSET_PX = 64;
 
   const isImage = selected?.type === 'IMAGE';
@@ -51,7 +50,6 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
   useEffect(() => {
     if (!selected) return;
     setImageZoom(1);
-    setImageMax(false);
   }, [selected?.id]);
 
   return (
@@ -152,7 +150,6 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
         open={isPreviewOpen && isImage}
         onOpenChange={(open) => {
           if (!open) {
-            setImageMax(false);
             setSelected(null);
           }
         }}
@@ -162,7 +159,7 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
           className="student-image-preview-dialog"
         >
           {selected && isImage && (
-            <div className={`student-image-preview ${imageMax ? 'is-max' : ''}`}>
+            <div className="student-image-preview">
               <div className="student-image-preview__header">
                 <div className="student-image-preview__title">
                   <div className="student-image-preview__name">{selected.title}</div>
@@ -182,17 +179,8 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
                   </a>
                   <button
                     type="button"
-                    className="student-image-preview__iconBtn"
-                    onClick={() => setImageMax((v) => !v)}
-                    title={imageMax ? 'Minimize' : 'Maximize'}
-                  >
-                    {imageMax ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                  </button>
-                  <button
-                    type="button"
                     className="student-image-preview__closeBtn"
                     onClick={() => {
-                      setImageMax(false);
                       setSelected(null);
                     }}
                     title="Close"
@@ -401,12 +389,6 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
           transform-origin: top center;
         }
-
-        /* Fullscreen/maximized mode: place below app bar and use remaining height */
-        .student-image-preview.is-max {
-          border-radius: 0;
-        }
-        /* (Dialog sizing handled via :global selector above) */
 
         @media (max-width: 520px) {
           :global(.student-image-preview-dialog) {
