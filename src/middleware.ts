@@ -25,22 +25,15 @@ export default auth((req) => {
   // Authenticated
   if (session?.user) {
     const role = (session.user as Record<string, unknown>).role as string;
-    const isApproved = (session.user as Record<string, unknown>).isApproved as boolean;
 
     // Admin routes
     if (pathname.startsWith('/admin') && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/', req.url));
     }
 
-    // Pending approval
-    if (role !== 'ADMIN' && !isApproved && !pathname.startsWith('/pending-approval') && !isAuthRoute) {
-      return NextResponse.redirect(new URL('/pending-approval', req.url));
-    }
-
     // If on an auth route or root, redirect to their dashboard
     if (isAuthRoute) {
       if (role === 'ADMIN') return NextResponse.redirect(new URL('/admin', req.url));
-      if (role === 'TEACHER' && !isApproved) return NextResponse.redirect(new URL('/pending-approval', req.url));
       if (role === 'TEACHER') return NextResponse.redirect(new URL('/teacher', req.url));
       if (role === 'STUDENT') return NextResponse.redirect(new URL('/student', req.url));
     }
