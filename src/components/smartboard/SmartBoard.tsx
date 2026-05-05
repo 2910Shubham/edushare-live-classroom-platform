@@ -85,6 +85,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
   const urlInputRef = useRef<HTMLInputElement>(null);
   const nextZIndex = useRef(10);
   const urlImageCounter = useRef(1);
+  const objectUrlByMaterialId = useRef<Map<string, string>>(new Map());
 
   const {
     activeTool,
@@ -124,6 +125,26 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       return newStates.filter((s) => activeIds.has(s.material.id));
     });
   }, [boardImages]);
+
+  // Cleanup blob: URLs created for pasted images when removed/unmounted
+  useEffect(() => {
+    const activeIds = new Set(boardImages.map((m) => m.id));
+    for (const [id, url] of objectUrlByMaterialId.current.entries()) {
+      if (!activeIds.has(id)) {
+        URL.revokeObjectURL(url);
+        objectUrlByMaterialId.current.delete(id);
+      }
+    }
+  }, [boardImages]);
+
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrlByMaterialId.current.values()) {
+        URL.revokeObjectURL(url);
+      }
+      objectUrlByMaterialId.current.clear();
+    };
+  }, []);
 
   const bringToFront = useCallback((id: string) => {
     setImageStates((prev) =>
@@ -349,6 +370,61 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
 
     return () => clearTimeout(timeout);
   }, [urlValue, classroomId, addImageToBoard, urlLoading]);
+
+  const guessImageExt = (mime: string) => {
+    if (mime === 'image/jpeg') return 'jpg';
+    if (mime === 'image/png') return 'png';
+    if (mime === 'image/gif') return 'gif';
+    if (mime === 'image/webp') return 'webp';
+    return 'png';
+  };
+
+  // Paste image directly onto the board (teacher only)
+  useEffect(() => {
+    if (role !== 'TEACHER') return;
+
+    const onPaste = (e: ClipboardEvent) => {
+      if (annotationActive) return;
+      if (showUrlInput) return;
+
+      // Only paste if the user is interacting with the board area
+      const target = e.target as Node | null;
+      if (boardRef.current && target && !boardRef.current.contains(target)) return;
+
+      const clipboardData = e.clipboardData;
+      if (!clipboardData) return;
+
+      const items = Array.from(clipboardData.items ?? []);
+      const imageItem = items.find((it) => it.kind === 'file' && it.type.startsWith('image/'));
+      if (!imageItem) return;
+
+      const raw = imageItem.getAsFile();
+      if (!raw) return;
+
+      // Prevent default paste into any focused input
+      e.preventDefault();
+
+      const objectUrl = URL.createObjectURL(raw);
+      const ext = guessImageExt(raw.type);
+      const id = `pasted-image-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const pseudoMaterial: Material = {
+        id,
+        classroomId,
+        uploadedById: 'clipboard-paste',
+        title: `Pasted image.${ext}`,
+        type: 'IMAGE',
+        fileUrl: objectUrl,
+        createdAt: new Date(),
+      };
+
+      objectUrlByMaterialId.current.set(id, objectUrl);
+      addImageToBoard(pseudoMaterial);
+    };
+
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, [role, annotationActive, showUrlInput, classroomId, addImageToBoard]);
 
   return (
     <div

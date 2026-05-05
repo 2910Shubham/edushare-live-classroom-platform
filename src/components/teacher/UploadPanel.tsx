@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { UploadCloud, File, Image as ImageIcon, FileText, Presentation, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { UploadCloud, File as FileIcon, Image as ImageIcon, FileText, Presentation, CheckCircle, AlertCircle, X, Clipboard } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UploadPanelProps {
@@ -18,6 +18,8 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropzoneRef = useRef<HTMLDivElement>(null);
+  const pasteBoxRef = useRef<HTMLDivElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -66,6 +68,98 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
       setTitle(selectedFile.name.split('.')[0]);
     }
   };
+
+  const guessImageExt = (mime: string) => {
+    if (mime === 'image/jpeg') return 'jpg';
+    if (mime === 'image/png') return 'png';
+    if (mime === 'image/gif') return 'gif';
+    if (mime === 'image/webp') return 'webp';
+    return 'png';
+  };
+
+  const trySetPastedImageFile = async (clipboardData: DataTransfer | null) => {
+    if (!clipboardData) return;
+    if (isUploading) return;
+
+    const items = Array.from(clipboardData.items ?? []);
+    const imageItem = items.find((it) => it.kind === 'file' && it.type.startsWith('image/'));
+    if (imageItem) {
+      const raw = imageItem.getAsFile();
+      if (!raw) return;
+      const ext = guessImageExt(raw.type);
+      const named = new globalThis.File([raw], `pasted-image-${Date.now()}.${ext}`, { type: raw.type });
+      validateAndSetFile(named);
+      setTitle((prev) => prev || `Pasted image ${new Date().toLocaleString()}`);
+      toast.success('Image pasted. Ready to upload.');
+      return;
+    }
+
+    // Fallback: some apps copy an image URL as text
+    const textItem = items.find((it) => it.kind === 'string' && it.type === 'text/plain');
+    if (!textItem) return;
+
+    const text = await new Promise<string>((resolve) => {
+      textItem.getAsString((s) => resolve(s || ''));
+    });
+    const trimmed = text.trim();
+    if (!/^https?:\/\//i.test(trimmed)) return;
+    if (!/\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(trimmed)) return;
+
+    try {
+      setError('');
+      const res = await fetch(trimmed);
+      if (!res.ok) throw new Error('Fetch failed');
+      const blob = await res.blob();
+      if (!blob.type.startsWith('image/')) throw new Error('Not an image');
+      const ext = guessImageExt(blob.type);
+      const named = new globalThis.File([blob], `pasted-url-image-${Date.now()}.${ext}`, { type: blob.type });
+      validateAndSetFile(named);
+      setTitle((prev) => prev || `Web image ${new Date().toLocaleString()}`);
+      toast.success('Image URL pasted. Ready to upload.');
+    } catch {
+      toast.error('Could not load pasted image URL (CORS/URL issue). Try copying the image itself.');
+    }
+  };
+
+  const handlePasteFromClipboard = async () => {
+    if (isUploading) return;
+    if (!navigator.clipboard?.read) {
+      toast.error('Clipboard button not supported here. Use the Paste box (tap + long-press Paste) or Ctrl+V.');
+      return;
+    }
+    try {
+      // Requires user gesture + permissions; works best on HTTPS.
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find((t) => t.startsWith('image/'));
+        if (!imageType) continue;
+        const blob = await item.getType(imageType);
+        const ext = guessImageExt(blob.type);
+        const named = new globalThis.File([blob], `clipboard-image-${Date.now()}.${ext}`, { type: blob.type });
+        validateAndSetFile(named);
+        setTitle((prev) => prev || `Clipboard image ${new Date().toLocaleString()}`);
+        toast.success('Clipboard image captured. Ready to upload.');
+        return;
+      }
+      toast.error('No image found in clipboard.');
+    } catch {
+      toast.error('Could not read clipboard. Try long-press Paste or Ctrl+V.');
+    }
+  };
+
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      // Only react when the user is interacting with this panel area.
+      const active = document.activeElement;
+      const withinPanel =
+        (dropzoneRef.current && active && dropzoneRef.current.contains(active)) ||
+        (dropzoneRef.current && e.target && dropzoneRef.current.contains(e.target as Node));
+      if (!withinPanel) return;
+      void trySetPastedImageFile(e.clipboardData);
+    };
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, [isUploading]);
 
   const handleUpload = async () => {
     if (!file || !title) return;
@@ -153,10 +247,17 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
 
       {!file ? (
         <div
+          ref={dropzoneRef}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+              // Let the paste event fire; this keeps behavior consistent.
+            }
+          }}
           style={{
             border: `2px dashed ${isDragging ? '#6C63FF' : 'rgba(108,99,255,0.2)'}`,
             borderRadius: 16,
@@ -166,6 +267,7 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             marginBottom: 16,
+            outline: 'none',
           }}
         >
           <input
@@ -180,8 +282,75 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
             Click or drag file to upload
           </p>
           <p style={{ color: '#A8A6C8', fontSize: 13 }}>
-            PDF, Image, or PowerPoint (max 20MB)
+            PDF, Image, or PowerPoint (max 20MB). Tip: click here and press Ctrl+V to paste an image.
           </p>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                void handlePasteFromClipboard();
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 14px',
+                borderRadius: 12,
+                border: '1px solid rgba(108,99,255,0.18)',
+                background: 'white',
+                color: '#2D2B55',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+              }}
+              title="Tap to paste image from clipboard"
+            >
+              <Clipboard size={18} color="#6C63FF" />
+              Paste from clipboard
+            </button>
+          </div>
+
+          {/* Mobile-friendly paste target (tap then long-press → Paste) */}
+          <div
+            ref={pasteBoxRef}
+            contentEditable
+            suppressContentEditableWarning
+            onClick={(e) => e.stopPropagation()}
+            onPaste={(e) => {
+              e.stopPropagation();
+              void trySetPastedImageFile(e.clipboardData);
+              // clear any pasted text so the box stays clean
+              requestAnimationFrame(() => {
+                if (pasteBoxRef.current) pasteBoxRef.current.innerText = '';
+              });
+            }}
+            onKeyDown={(e) => {
+              // Keep it a "paste only" box
+              if (e.key !== 'Tab') e.preventDefault();
+            }}
+            style={{
+              marginTop: 12,
+              width: '100%',
+              maxWidth: 420,
+              marginInline: 'auto',
+              padding: '12px 14px',
+              borderRadius: 12,
+              border: '1.5px solid rgba(108,99,255,0.18)',
+              background: 'rgba(255,255,255,0.85)',
+              color: '#2D2B55',
+              fontSize: 13,
+              fontWeight: 600,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+              outline: 'none',
+              userSelect: 'text',
+              cursor: 'text',
+            }}
+          >
+            Tap here, then long-press → Paste image
+          </div>
+
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16 }}>
             <div style={{ padding: 8, background: 'white', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
               <FileText size={20} color="#6C63FF" />
@@ -197,7 +366,7 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
       ) : (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(108,99,255,0.1)' }}>
-            <File size={24} color="#6C63FF" />
+            <FileIcon size={24} color="#6C63FF" />
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontWeight: 600, fontSize: 14, color: '#2D2B55', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {file.name}
