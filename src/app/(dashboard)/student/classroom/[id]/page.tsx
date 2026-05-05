@@ -2,9 +2,10 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { PageBackground } from '@/components/ui/PageBackground';
-import { FileText, ArrowLeft, Download } from 'lucide-react';
+import { FileText, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { NotesCard } from '@/components/student/NotesCard';
+import { StudentMaterialsClient } from '@/components/student/StudentMaterialsClient';
 
 export default async function StudentClassroomPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -63,27 +64,17 @@ export default async function StudentClassroomPage({ params }: { params: Promise
               Class Materials
             </h2>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {classroom.materials.length === 0 ? (
-                <p style={{ color: '#A8A6C8', fontSize: 15 }}>No materials have been uploaded yet.</p>
-              ) : (
-                classroom.materials.map((material) => (
-                  <div key={material.id} className="material-item" style={{ padding: 16, border: '1px solid rgba(108,99,255,0.1)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.5)' }}>
-                    <div>
-                      <h3 style={{ fontWeight: 600, color: '#2D2B55', fontSize: 16 }}>{material.title}</h3>
-                      <div style={{ display: 'flex', gap: 12, marginTop: 4, fontSize: 13, color: '#5A5880' }}>
-                        <span className="badge-subject">{material.type}</span>
-                        <span>{new Date(material.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <a href={material.fileUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-                      <Download size={16} />
-                      View
-                    </a>
-                  </div>
-                ))
-              )}
-            </div>
+            <StudentMaterialsClient
+              materials={classroom.materials.map((m) => ({
+                id: m.id,
+                title: m.title,
+                type: m.type as any,
+                fileUrl: m.fileUrl,
+                fileSize: m.fileSize,
+                mimeType: m.mimeType,
+                createdAt: m.createdAt.toISOString(),
+              }))}
+            />
           </div>
 
           {/* Notes Section */}
