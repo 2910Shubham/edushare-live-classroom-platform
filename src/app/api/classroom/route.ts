@@ -85,10 +85,12 @@ export async function POST(req: NextRequest) {
 
     const code = nanoid();
     const classroom = await db.classroom.create({
+      
       data: {
         name: parsed.data.name,
         subject: parsed.data.subject || null,
         code,
+        
         teacherId: session.user.id,
       },
       include: {
