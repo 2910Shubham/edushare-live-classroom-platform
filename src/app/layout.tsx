@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import './globals.css';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 export const metadata: Metadata = {
   title: 'EduShare — Live Classroom Platform',
@@ -30,6 +31,7 @@ export default function RootLayout({
             },
           }}
         />
+        <PwaInstallPrompt />
       </body>
     </html>
   );
