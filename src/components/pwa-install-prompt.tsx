@@ -71,30 +71,32 @@ export function PwaInstallPrompt() {
   }
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-50 flex items-center justify-between gap-4 rounded-xl border border-[rgba(108,99,255,0.12)] bg-white p-4 shadow-[0_8px_32px_rgba(108,99,255,0.12)] sm:top-6 sm:left-auto sm:right-6 sm:max-w-sm animate-in slide-in-from-top-4 fade-in duration-300">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#6c63ff]/10 text-[#6c63ff]">
-          <Download className="h-5 w-5" />
+    <div className="fixed top-4 left-4 right-4 z-[100] sm:left-auto sm:right-6 sm:w-[360px] animate-in slide-in-from-top-4 fade-in duration-300">
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-5">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#6c63ff] text-white shadow-sm">
+            <Download className="h-6 w-6" />
+          </div>
+          <div className="flex flex-col flex-1 pt-0.5">
+            <h3 className="text-[15px] font-bold text-slate-900 leading-tight">Install EduShare</h3>
+            <p className="text-[13px] text-slate-500 mt-1 leading-snug">Add to home screen for a seamless experience.</p>
+          </div>
+          <button
+            onClick={handleDismiss}
+            className="flex-shrink-0 p-1.5 -mt-1 -mr-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
+            aria-label="Dismiss install prompt"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold text-[#2D2B55]">Install EduShare</span>
-          <span className="text-xs text-slate-500 text-left">Add to your home screen for quick access</span>
+        <div className="mt-4">
+          <button
+            onClick={handleInstallClick}
+            className="w-full flex items-center justify-center rounded-xl bg-[#6c63ff] py-2.5 text-[14px] font-semibold text-white shadow-sm hover:bg-[#5a52d5] transition-colors"
+          >
+            Install App Now
+          </button>
         </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={handleInstallClick}
-          className="rounded-lg bg-[#6c63ff] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#5a52d5] transition-colors focus:outline-none focus:ring-2 focus:ring-[#6c63ff] focus:ring-offset-2"
-        >
-          Install
-        </button>
-        <button
-          onClick={handleDismiss}
-          className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200"
-          aria-label="Dismiss install prompt"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </div>
     </div>
   );
