@@ -6,6 +6,8 @@ import { FileText, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { NotesCard } from '@/components/student/NotesCard';
 import { StudentMaterialsClient } from '@/components/student/StudentMaterialsClient';
+import { ChatPanel } from '@/components/chat/ChatPanel';
+import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 
 export default async function StudentClassroomPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -46,9 +48,12 @@ export default async function StudentClassroomPage({ params }: { params: Promise
       <div style={{ position: 'relative', zIndex: 10, padding: '24px' }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
-          <Link href="/student" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5A5880', textDecoration: 'none', marginBottom: 16 }}>
-            <ArrowLeft size={16} /> Back to Dashboard
-          </Link>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Link href="/student" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5A5880', textDecoration: 'none' }}>
+              <ArrowLeft size={16} /> Back to Dashboard
+            </Link>
+            <PushNotificationToggle />
+          </div>
           <h1 style={{ fontSize: 28, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {classroom.name}
           </h1>
@@ -102,6 +107,13 @@ export default async function StudentClassroomPage({ params }: { params: Promise
           </div>
           
         </div>
+
+        {/* Chat Panel */}
+        <ChatPanel
+          classroomId={classroomId}
+          currentUserId={session.user.id!}
+          materials={classroom.materials.map((m) => ({ id: m.id, title: m.title, type: m.type }))}
+        />
       </div>
     </>
   );

@@ -67,6 +67,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Chat message: broadcast to the whole room (including sender gets it from API response)
+  socket.on('chat:message', (data) => {
+    if (currentRoom) {
+      socket.to(currentRoom).emit('chat:message', data);
+    }
+  });
+
   socket.on('disconnect', () => {
     if (currentRoom) {
       const roomPresence = presence.get(currentRoom);

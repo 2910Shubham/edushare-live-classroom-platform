@@ -22,6 +22,7 @@ model User {
   taughtClasses Classroom[]      @relation("TeacherClasses")
   enrollments   Enrollment[]
   notes         StudentNote[]
+  chatMessages  ChatMessage[]
   accounts      Account[]
   sessions      Session[]
   subscriptions PushSubscription[]
@@ -42,9 +43,10 @@ model Classroom {
   teacher     User      @relation("TeacherClasses", fields: [teacherId], references: [id])
   createdAt   DateTime  @default(now())
 
-  enrollments Enrollment[]
-  materials   Material[]
-  sessions    BoardSession[]
+  enrollments  Enrollment[]
+  materials    Material[]
+  sessions     BoardSession[]
+  chatMessages ChatMessage[]
 }
 
 model Enrollment {
@@ -74,6 +76,7 @@ model Material {
   classroom    Classroom    @relation(fields: [classroomId], references: [id])
   annotations  Annotation[]
   notes        StudentNote[]
+  chatMessages ChatMessage[]
 }
 
 enum MaterialType {
@@ -113,6 +116,22 @@ model BoardSession {
   endedAt     DateTime?
 
   classroom   Classroom @relation(fields: [classroomId], references: [id])
+}
+
+model ChatMessage {
+  id          String    @id @default(cuid())
+  classroomId String
+  userId      String
+  content     String    @db.Text
+  materialId  String?
+  type        String    @default("text") // text, doubt, material_share
+  createdAt   DateTime  @default(now())
+
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material    Material? @relation(fields: [materialId], references: [id], onDelete: SetNull)
+
+  @@index([classroomId, createdAt])
 }
 
 model Notification {

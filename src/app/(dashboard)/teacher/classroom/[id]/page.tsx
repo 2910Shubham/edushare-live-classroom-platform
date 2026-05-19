@@ -7,6 +7,8 @@ import { MaterialList } from '@/components/teacher/MaterialList';
 import { Users, StopCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { Material } from '@/types';
+import { ChatPanel } from '@/components/chat/ChatPanel';
+import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 
 export default async function TeacherClassroomPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -69,14 +71,17 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
           </div>
         </div>
 
-        <Link 
-          href="/teacher"
-          className="btn-danger" 
-          style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
-        >
-          <StopCircle size={18} />
-          End Session
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <PushNotificationToggle />
+          <Link 
+            href="/teacher"
+            className="btn-danger" 
+            style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
+          >
+            <StopCircle size={18} />
+            End Session
+          </Link>
+        </div>
       </div>
 
       {/* Main Content: Sidebar + Board */}
@@ -93,6 +98,13 @@ export default async function TeacherClassroomPage({ params }: { params: Promise
           <SmartBoard classroomId={classroomId} role="TEACHER" />
         </div>
       </div>
+
+      {/* Chat Panel */}
+      <ChatPanel
+        classroomId={classroomId}
+        currentUserId={session.user.id!}
+        materials={classroom.materials.map((m) => ({ id: m.id, title: m.title, type: m.type }))}
+      />
     </div>
   );
 }
