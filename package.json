@@ -7,8 +7,10 @@
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
-    "start:socket": "ts-node server/socket-server.ts",
-    "postinstall": "prisma generate"
+    "start:socket": "ts-node server/socket-server.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
