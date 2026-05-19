@@ -11,20 +11,7 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const supported =
-      typeof window !== 'undefined' &&
-      'serviceWorker' in navigator &&
-      'PushManager' in window &&
-      'Notification' in window;
-    setIsSupported(supported);
-
-    if (supported) {
-      checkSubscription();
-    }
-  }, []);
-
-  const checkSubscription = async () => {
+  const checkSubscription = useCallback(async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
@@ -32,7 +19,21 @@ export function usePushNotifications() {
     } catch {
       setIsSubscribed(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const supported =
+      typeof window !== 'undefined' &&
+      'serviceWorker' in navigator &&
+      'PushManager' in window &&
+      'Notification' in window;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsSupported(supported);
+
+    if (supported) {
+      checkSubscription();
+    }
+  }, [checkSubscription]);
 
   const subscribe = useCallback(async () => {
     if (!isSupported) return false;
@@ -59,6 +60,7 @@ export function usePushNotifications() {
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as any,
       });
 

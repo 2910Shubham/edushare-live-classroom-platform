@@ -10,6 +10,7 @@ export function useSocket() {
 
   useEffect(() => {
     const socketInstance = getSocket();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(socketInstance);
 
     function onConnect() {

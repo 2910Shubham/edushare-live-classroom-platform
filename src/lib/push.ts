@@ -73,9 +73,10 @@ export async function sendPushToClassroom(
         try {
           const pushSub = JSON.parse(sub.subscription);
           await webPush.sendNotification(pushSub, pushPayload);
-        } catch (err: any) {
+        } catch (err: unknown) {
           // If subscription is expired/invalid, remove it
-          if (err?.statusCode === 410 || err?.statusCode === 404) {
+          const error = err as { statusCode?: number };
+          if (error?.statusCode === 410 || error?.statusCode === 404) {
             await db.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
           }
           throw err;
