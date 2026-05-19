@@ -4,6 +4,13 @@ import { db } from '@/lib/db';
 import { z } from 'zod';
 import { publishToRedis } from '@/lib/redis';
 import { sendPushToClassroom } from '@/lib/push';
+import { Ratelimit } from '@upstash/ratelimit';
+import { redis } from '@/lib/redis';
+
+const chatRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '120 s'),
+});
 
 const sendMessageSchema = z.object({
   content: z.string().min(1).max(2000),
@@ -89,6 +96,31 @@ export async function POST(
     const hasAccess = await verifyClassroomAccess(session.user.id, classroomId);
     if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Fetch user role
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    // Rate limiting for students: max 5 messages per 2 minutes
+    if (user?.role === 'STUDENT') {
+      const identifier = `chat_ratelimit:${classroomId}:${session.user.id}`;
+      const { success, limit, remaining, reset } = await chatRateLimit.limit(identifier);
+      
+      if (!success) {
+        return NextResponse.json({ 
+          error: 'Rate limit exceeded. You can only send 5 messages every 2 minutes. Please wait.' 
+        }, { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          }
+        });
+      }
     }
 
     const body = await req.json();

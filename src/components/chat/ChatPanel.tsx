@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, Send, HelpCircle, Paperclip, X, ChevronDown } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
+import { toast } from 'sonner';
 
 interface ChatUser {
   id: string;
@@ -82,9 +83,11 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
   // Socket real-time
   useEffect(() => {
     const socket = getSocket();
+    console.log('[ChatPanel] Joining classroom room via socket...', classroomId);
     socket.emit('join:classroom', { classroomId, role: 'STUDENT' });
 
     const handleNewMessage = (msg: ChatMsg) => {
+      console.log('[ChatPanel] Received chat:message via socket!', msg);
       setMessages((prev) => {
         if (prev.some((m) => m.id === msg.id)) return prev;
         return [...prev, msg];
@@ -97,7 +100,10 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
     };
 
     socket.on('chat:message', handleNewMessage);
-    return () => { socket.off('chat:message', handleNewMessage); };
+    return () => { 
+      console.log('[ChatPanel] Cleaning up socket listener for chat:message');
+      socket.off('chat:message', handleNewMessage); 
+    };
   }, [classroomId, isOpen, scrollToBottom]);
 
   const sendMessage = async () => {
@@ -122,6 +128,7 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
         
         // Emit via socket for real-time delivery
         const socket = getSocket();
+        console.log('[ChatPanel] Emitting chat:message to socket', msg);
         socket.emit('chat:message', msg);
 
         setInput('');
@@ -129,9 +136,13 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
         setSelectedMaterial(undefined);
         setShowMaterialPicker(false);
         scrollToBottom();
+      } else {
+        const errData = await res.json();
+        toast.error(errData.error || 'Failed to send message');
       }
     } catch (err) {
       console.error('Send message error:', err);
+      toast.error('Network error. Please try again.');
     }
     setSending(false);
   };

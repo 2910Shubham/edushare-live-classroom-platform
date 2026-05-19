@@ -12,7 +12,10 @@ const port = process.env.PORT || 3001;
 const httpServer = http.createServer();
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow any origin for local dev / LAN access
+      callback(null, true);
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -69,8 +72,12 @@ io.on('connection', (socket) => {
 
   // Chat message: broadcast to the whole room (including sender gets it from API response)
   socket.on('chat:message', (data) => {
+    console.log(`[SocketServer] Received chat:message from ${socket.id} in room: ${currentRoom}`);
     if (currentRoom) {
+      console.log(`[SocketServer] Broadcasting chat:message to room: ${currentRoom}`);
       socket.to(currentRoom).emit('chat:message', data);
+    } else {
+      console.log(`[SocketServer] WARNING: currentRoom is null for socket ${socket.id}`);
     }
   });
 
