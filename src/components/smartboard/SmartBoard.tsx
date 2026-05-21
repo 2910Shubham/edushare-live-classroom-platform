@@ -7,6 +7,7 @@ import { AnnotationToolbar } from '../teacher/AnnotationToolbar';
 import { Sparkles, Maximize2, Minimize2, Palette, Link2, X, Loader2 } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Material } from '@/types';
+import { trackBoard, trackFeature } from '@/lib/analytics';
 import {
   Dialog,
   DialogContent,
@@ -244,11 +245,15 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
   const gridColor = isDarkBg ? 'rgba(255,255,255,0.06)' : 'rgba(108, 99, 255, 0.05)';
 
   const toggleAnnotation = useCallback(() => {
-    setAnnotationActive((prev) => !prev);
+    setAnnotationActive((prev) => {
+      const next = !prev;
+      void trackBoard(next ? 'board_draw_start' : 'board_draw_stop', classroomId);
+      return next;
+    });
     if (!annotationActive) {
       setSelectedImageId(null);
     }
-  }, [annotationActive]);
+  }, [annotationActive, classroomId]);
 
   // Handle clicking empty area to deselect
   const handleBoardClick = useCallback(
@@ -330,6 +335,7 @@ export function SmartBoard({ classroomId, role }: SmartBoardProps) {
       };
 
       addImageToBoard(pseudoMaterial);
+      void trackFeature('board_add_image_url', trimmed, { classroomId });
 
       // Set natural dimensions in imageStates after a tick
       setTimeout(() => {

@@ -26,6 +26,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   subscriptions PushSubscription[]
+  analyticsSessions AnalyticsSession[]
+  analyticsEvents   AnalyticsEvent[]
 }
 
 enum Role {
@@ -187,4 +189,49 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model AnalyticsSession {
+  id          String    @id @default(cuid())
+  userId      String
+  role        Role
+  path        String
+  classroomId String?
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+  durationSec Int       @default(0)
+  userAgent   String?
+
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events AnalyticsEvent[]
+
+  @@index([userId])
+
+  @@index([userId, startedAt])
+  @@index([classroomId, startedAt])
+  @@index([startedAt])
+  @@index([endedAt])
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  sessionId   String?
+  userId      String
+  role        Role
+  category    String
+  action      String
+  label       String?
+  path        String?
+  classroomId String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session AnalyticsSession?  @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([category, createdAt])
+  @@index([userId, createdAt])
+  @@index([classroomId, createdAt])
+  @@index([createdAt])
 }

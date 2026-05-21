@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, Send, HelpCircle, Paperclip, X, ChevronDown } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 import { toast } from 'sonner';
+import { trackFeature } from '@/lib/analytics';
 
 interface ChatUser {
   id: string;
@@ -130,6 +131,10 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
         const socket = getSocket();
         console.log('[ChatPanel] Emitting chat:message to socket', msg);
         socket.emit('chat:message', msg);
+        void trackFeature('chat_message_sent', msgType, {
+          classroomId,
+          metadata: { hasMaterial: !!selectedMaterial },
+        });
 
         setInput('');
         setMsgType('text');

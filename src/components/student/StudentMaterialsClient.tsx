@@ -5,6 +5,7 @@ import { Download, FileText, Presentation, X, ZoomIn, ZoomOut } from 'lucide-rea
 import { DocumentViewer } from '@/components/smartboard/DocumentViewer';
 import type { MaterialType } from '@/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { trackFeature, trackButton } from '@/lib/analytics';
 
 type ClientMaterial = {
   id: string;
@@ -44,6 +45,9 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
 
   const openPreview = (m: ClientMaterial) => {
     setSelected(m);
+    void trackFeature('material_preview_open', m.title, {
+      metadata: { type: m.type, materialId: m.id },
+    });
   };
 
   // Deterministic state whenever a new item opens
@@ -120,7 +124,12 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
                 href={m.fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void trackButton('material_download', m.title, {
+                    metadata: { materialId: m.id, type: m.type },
+                  });
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

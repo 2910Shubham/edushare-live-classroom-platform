@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { UploadCloud, File as FileIcon, Image as ImageIcon, FileText, Presentation, CheckCircle, AlertCircle, X, Clipboard } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackFeature, trackButton } from '@/lib/analytics';
 
 interface UploadPanelProps {
   classroomId: string;
@@ -91,6 +92,7 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
       validateAndSetFile(named);
       setTitle((prev) => prev || `Pasted image ${new Date().toLocaleString()}`);
       toast.success('Image pasted. Ready to upload.');
+      void trackFeature('upload_paste_image', 'clipboard');
       return;
     }
 
@@ -187,6 +189,10 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
         if (xhr.status === 201) {
           setSuccess(true);
           toast.success('File uploaded successfully');
+          void trackFeature('material_upload_success', title, {
+            classroomId,
+            metadata: { fileName: file.name, fileType: file.type },
+          });
           if (onUploadComplete) {
             onUploadComplete(JSON.parse(xhr.responseText));
           }
@@ -441,7 +447,10 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
           )}
 
           <button
-            onClick={handleUpload}
+            onClick={() => {
+              void trackButton('upload_share_click', title, { classroomId });
+              handleUpload();
+            }}
             disabled={!title || isUploading}
             className="btn-primary"
             style={{ width: '100%', opacity: (!title || isUploading) ? 0.7 : 1 }}

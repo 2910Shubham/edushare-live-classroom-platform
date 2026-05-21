@@ -3,6 +3,7 @@
 import { Material } from '@/types';
 import { Share2, Image, FileText, Presentation, CheckCircle2, Trash2, AlertTriangle } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
+import { trackBoard, trackButton } from '@/lib/analytics';
 
 // Stable date formatter that won't cause hydration mismatch
 function formatDate(date: Date | string): string {
@@ -41,10 +42,12 @@ export function MaterialList({
       // setBoardImages during this component's render cycle.
       setTimeout(() => {
         if (shouldRemove) {
+          void trackBoard('board_remove_material', classroomId, material.title);
           window.dispatchEvent(
             new CustomEvent('local:removeMaterial', { detail: material })
           );
         } else {
+          void trackBoard('board_add_material', classroomId, material.title);
           window.dispatchEvent(
             new CustomEvent('local:setMaterial', { detail: material })
           );
@@ -263,6 +266,7 @@ export function MaterialList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      void trackButton('material_delete_click', material.title, { classroomId });
                       setDeleteConfirm(material);
                     }}
                     style={{

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { trackFeature } from '@/lib/analytics';
 
 export function JoinClassroomButton({ variant = 'default' }: { variant?: 'default' | 'empty' }) {
   const [open, setOpen] = useState(false);
@@ -33,6 +34,7 @@ export function JoinClassroomButton({ variant = 'default' }: { variant?: 'defaul
       }
 
       toast.success('Joined classroom!');
+      void trackFeature('classroom_join', code.trim().toUpperCase());
       setCode('');
       setOpen(false);
       router.refresh();

@@ -14,12 +14,14 @@ import {
   LogOut,
   Menu,
   X,
+  BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { NotificationBell } from './NotificationBell';
 
 const adminLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/teacher', label: 'Classrooms', icon: Monitor },
   { href: '/teacher/upload', label: 'Upload', icon: Upload },
