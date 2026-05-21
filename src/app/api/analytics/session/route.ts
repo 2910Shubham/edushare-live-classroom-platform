@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import type { Role } from '@prisma/client';
+import { resolveAnalyticsUser } from '@/lib/analytics-auth';
 
 function parseClassroomId(path: string): string | null {
   const m = path.match(/\/classroom\/([^/]+)/);
@@ -11,19 +11,19 @@ function parseClassroomId(path: string): string | null {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    const user = await resolveAnalyticsUser(session);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = ((session.user as Record<string, unknown>).role as Role) ?? 'STUDENT';
     const body = (await req.json().catch(() => ({}))) as { path?: string };
     const path = body.path?.trim() || '/';
     const classroomId = parseClassroomId(path);
 
     const row = await db.analyticsSession.create({
       data: {
-        userId: session.user.id,
-        role,
+        userId: user.userId,
+        role: user.role,
         path,
         classroomId,
         userAgent: req.headers.get('user-agent')?.slice(0, 500) ?? null,
@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    const user = await resolveAnalyticsUser(session);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -57,7 +58,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const existing = await db.analyticsSession.findFirst({
-      where: { id: body.sessionId, userId: session.user.id },
+      where: { id: body.sessionId, userId: user.userId },
     });
     if (!existing) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });

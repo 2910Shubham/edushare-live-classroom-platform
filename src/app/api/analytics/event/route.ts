@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import type { Role } from '@prisma/client';
+import { resolveAnalyticsUser } from '@/lib/analytics-auth';
 
 function parseClassroomId(path: string | undefined): string | null {
   if (!path) return null;
@@ -12,11 +12,10 @@ function parseClassroomId(path: string | undefined): string | null {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    const user = await resolveAnalyticsUser(session);
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const role = ((session.user as Record<string, unknown>).role as Role) ?? 'STUDENT';
     const body = (await req.json().catch(() => ({}))) as {
       sessionId?: string;
       category?: string;
@@ -36,8 +35,8 @@ export async function POST(req: NextRequest) {
 
     await db.analyticsEvent.create({
       data: {
-        userId: session.user.id,
-        role,
+        userId: user.userId,
+        role: user.role,
         category: body.category.slice(0, 32),
         action: body.action.slice(0, 64),
         label: body.label?.slice(0, 128) ?? null,
