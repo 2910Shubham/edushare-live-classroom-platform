@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { resolveAnalyticsUser } from '@/lib/analytics-auth';
+import type { Prisma } from '@prisma/client';
 
 function parseClassroomId(path: string | undefined): string | null {
   if (!path) return null;
@@ -43,7 +44,9 @@ export async function POST(req: NextRequest) {
         path: path?.slice(0, 256) ?? null,
         classroomId,
         sessionId: body.sessionId ?? null,
-        metadata: body.metadata ?? undefined,
+        metadata: body.metadata
+          ? (JSON.parse(JSON.stringify(body.metadata)) as Prisma.InputJsonValue)
+          : undefined,
       },
     });
 
