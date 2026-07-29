@@ -111,7 +111,7 @@ export async function POST(
       
       if (!success) {
         return NextResponse.json({ 
-          error: 'Rate limit exceeded. You can only send 5 messages every 2 minutes. Please wait.' 
+          error: 'Limit Exceeded. You can only send 5 messages every 2 minutes. Please wait.' 
         }, { 
           status: 429,
           headers: {

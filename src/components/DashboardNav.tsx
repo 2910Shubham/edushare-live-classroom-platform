@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   BarChart3,
+  Trophy,
 } from 'lucide-react';
 import { useState } from 'react';
 import { NotificationBell } from './NotificationBell';
@@ -24,12 +25,14 @@ const adminLinks = [
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/teacher', label: 'Classrooms', icon: Monitor },
+  { href: '/quiz', label: 'Quiz', icon: Trophy },
   { href: '/teacher/upload', label: 'Upload', icon: Upload },
   { href: '/student', label: 'Student View', icon: BookOpen },
 ];
 
 const teacherLinks = [
   { href: '/teacher', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/quiz', label: 'Quiz', icon: Trophy },
   { href: '/teacher/upload', label: 'Upload', icon: Upload },
 ];
 

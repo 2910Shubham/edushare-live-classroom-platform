@@ -5,8 +5,6 @@ import { MessageCircle, Send, HelpCircle, Paperclip, X, ChevronDown } from 'luci
 import { getSocket } from '@/lib/socket';
 import { toast } from 'sonner';
 import { trackFeature } from '@/lib/analytics';
-import { MaterialPreviewOverlay, type PreviewMaterial } from '@/components/material/MaterialPreviewOverlay';
-import type { MaterialType } from '@/types';
 
 interface ChatUser {
   id: string;
@@ -53,7 +51,6 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [unread, setUnread] = useState(0);
-  const [previewMaterial, setPreviewMaterial] = useState<PreviewMaterial | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -347,30 +344,14 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
 
                       {/* Tagged material */}
                       {msg.material && (
-                        <button
-                          type="button"
-                          onClick={() => setPreviewMaterial({
-                            id: msg.material!.id,
-                            title: msg.material!.title,
-                            type: msg.material!.type as MaterialType,
-                            fileUrl: msg.material!.fileUrl,
-                          })}
-                          title={`Open ${msg.material.title}`}
-                          style={{
-                            marginTop: 8, padding: '8px 10px', borderRadius: 10,
-                            background: isOwn ? 'rgba(255,255,255,0.15)' : 'rgba(108,99,255,0.06)',
-                            display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
-                            border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left',
-                            color: 'inherit', transition: 'opacity 0.15s',
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-                        >
+                        <div style={{
+                          marginTop: 8, padding: '8px 10px', borderRadius: 10,
+                          background: isOwn ? 'rgba(255,255,255,0.15)' : 'rgba(108,99,255,0.06)',
+                          display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
+                        }}>
                           <span>📄</span>
-                          <span style={{ fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: 2 }}>
-                            {msg.material.title}
-                          </span>
-                        </button>
+                          <span style={{ fontWeight: 500 }}>{msg.material.title}</span>
+                        </div>
                       )}
                     </div>
 
@@ -476,12 +457,6 @@ export function ChatPanel({ classroomId, currentUserId, materials = [] }: Props)
           </div>
         </div>
       )}
-
-      <MaterialPreviewOverlay
-        material={previewMaterial}
-        onClose={() => setPreviewMaterial(null)}
-        analyticsSource="chat"
-      />
     </>
   );
 }

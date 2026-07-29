@@ -11,6 +11,7 @@ export default auth((req) => {
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/';
   const isProtectedRoute =
     pathname.startsWith('/teacher') ||
+    pathname.startsWith('/quiz') ||
     pathname.startsWith('/student') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/pending-approval');
@@ -43,6 +44,11 @@ export default auth((req) => {
       return NextResponse.redirect(new URL('/student', req.url));
     }
 
+    // Quiz routes — only for TEACHER role
+    if (pathname.startsWith('/quiz') && role !== 'TEACHER' && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/student', req.url));
+    }
+
     // Student routes — only for STUDENT role
     if (pathname.startsWith('/student') && role !== 'STUDENT' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/teacher', req.url));
@@ -53,5 +59,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/teacher/:path*', '/student/:path*', '/admin/:path*', '/pending-approval', '/login', '/register', '/'],
+  matcher: ['/teacher/:path*', '/quiz/:path*', '/student/:path*', '/admin/:path*', '/pending-approval', '/login', '/register', '/'],
 };
