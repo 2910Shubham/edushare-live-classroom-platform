@@ -48,15 +48,9 @@ export function JoinClassroomButton({ variant = 'default' }: { variant?: 'defaul
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="btn-accent"
-        style={{
-          display: variant === 'empty' ? 'inline-flex' : 'flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: variant === 'empty' ? '10px 20px' : '10px 20px',
-          fontSize: 15,
-        }}
+        className="clay-btn clay-btn-teal clay-btn-sm"
       >
         <Plus size={variant === 'empty' ? 16 : 18} />
         Join Classroom
@@ -64,50 +58,63 @@ export function JoinClassroomButton({ variant = 'default' }: { variant?: 'defaul
 
       {open && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 24 }}
+          className="clay-modal-backdrop"
           onClick={() => setOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="join-classroom-title"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="animate-scaleIn"
-            style={{ background: '#FFFFFF', borderRadius: 20, padding: '32px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(67,232,216,0.2)' }}
+            className="clay clay-lg clay-modal"
+            style={{ maxWidth: 410, width: '100%' }}
           >
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#2D2B55', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2
+              id="join-classroom-title"
+              style={{ fontSize: 22, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
               Join a Classroom
             </h2>
-            <p style={{ color: '#5A5880', fontSize: 14, marginBottom: 24 }}>
+            <p style={{ color: 'var(--clay-ink-soft)', fontSize: 14, marginBottom: 22 }}>
               Enter the 6-character code from your teacher
             </p>
             <form onSubmit={handleJoin}>
+              <label htmlFor="join-code-input" className="sr-only">
+                6-character classroom join code
+              </label>
               <input
+                id="join-code-input"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. ABC123"
                 maxLength={6}
                 required
+                className="clay-inset"
                 style={{
                   width: '100%',
                   padding: '16px',
-                  borderRadius: 12,
-                  border: '2px solid rgba(67,232,216,0.3)',
-                  background: '#FAFFFE',
                   fontSize: 24,
-                  color: '#2D2B55',
                   fontFamily: "'JetBrains Mono', monospace",
                   textAlign: 'center',
                   letterSpacing: 8,
-                  outline: 'none',
-                  boxSizing: 'border-box',
                   fontWeight: 700,
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#43E8D8'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(67,232,216,0.3)'; }}
               />
-              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-                <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, padding: '12px', borderRadius: 12, border: '1px solid rgba(67,232,216,0.2)', background: '#FFF', color: '#5A5880', fontSize: 15, cursor: 'pointer', fontWeight: 500 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="clay-btn clay-btn-ghost clay-btn-sm"
+                  style={{ flex: 1 }}
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={loading} className="btn-accent" style={{ flex: 1, padding: '12px', fontSize: 15, opacity: loading ? 0.7 : 1 }}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="clay-btn clay-btn-teal clay-btn-sm"
+                  style={{ flex: 1 }}
+                >
                   {loading ? 'Joining...' : 'Join'}
                 </button>
               </div>

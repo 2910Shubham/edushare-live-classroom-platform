@@ -22,11 +22,12 @@ export default function RootLayout({
           position="top-right"
           toastOptions={{
             style: {
-              background: '#FFFFFF',
-              border: '1px solid rgba(108, 99, 255, 0.12)',
-              borderRadius: '14px',
-              boxShadow: '0 8px 32px rgba(108, 99, 255, 0.12)',
-              color: '#2D2B55',
+              background: 'var(--clay-surface)',
+              border: '1px solid rgba(255, 255, 255, 0.75)',
+              borderRadius: '24px',
+              boxShadow:
+                '12px 16px 32px rgba(124, 108, 255, 0.18), 4px 6px 12px rgba(43, 42, 85, 0.08), inset -6px -6px 12px rgba(124, 108, 255, 0.08), inset 6px 6px 12px rgba(255, 255, 255, 0.95)',
+              color: 'var(--clay-ink)',
               fontFamily: "'Inter', sans-serif",
             },
           }}

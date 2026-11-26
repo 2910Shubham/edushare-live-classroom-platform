@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, Monitor, FileText } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 interface StudentClassroomCardProps {
   id: string;
@@ -22,7 +22,7 @@ export function StudentClassroomCard({
 }: StudentClassroomCardProps) {
   return (
     <div
-      className="edu-card"
+      className="clay clay-md clay-hover"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -32,49 +32,41 @@ export function StudentClassroomCard({
       <div>
         <h3
           style={{
-            fontSize: 18,
+            fontSize: 19,
             fontWeight: 700,
-            color: '#2D2B55',
+            color: 'var(--clay-ink)',
             fontFamily: "'Plus Jakarta Sans', sans-serif",
             marginBottom: 8,
           }}
         >
           {name}
         </h3>
-        {subject && <span className="badge-subject">{subject}</span>}
+        {subject && <span className="clay-pill clay-pill-yellow">{subject}</span>}
       </div>
 
       {/* Teacher */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {teacherImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={teacherImage}
             alt={teacherName}
-            style={{ width: 28, height: 28, borderRadius: '50%' }}
+            className="clay-avatar-ring"
+            style={{ width: 32, height: 32, objectFit: 'cover' }}
           />
         ) : (
           <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              background: 'rgba(108,99,255,0.1)',
-              color: '#6C63FF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 600,
-              fontSize: 12,
-            }}
+            className="clay-icon clay-icon-sm clay-icon-purple"
+            style={{ width: 32, height: 32, borderRadius: '50%', fontWeight: 700, fontSize: 13 }}
           >
             {teacherName.charAt(0).toUpperCase()}
           </div>
         )}
-        <span style={{ fontSize: 14, color: '#5A5880' }}>{teacherName}</span>
+        <span style={{ fontSize: 14, color: 'var(--clay-ink-soft)', fontWeight: 500 }}>{teacherName}</span>
       </div>
 
       {/* Material count */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#5A5880', fontSize: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--clay-ink-soft)', fontSize: 14, fontWeight: 500 }}>
         <BookOpen size={16} />
         {materialCount} material{materialCount !== 1 ? 's' : ''}
       </div>
@@ -83,17 +75,8 @@ export function StudentClassroomCard({
       <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
         <Link
           href={`/student/classroom/${id}`}
-          className="btn-accent"
-          style={{
-            flex: 1,
-            textAlign: 'center',
-            textDecoration: 'none',
-            fontSize: 14,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}
+          className="clay-btn clay-btn-teal clay-btn-sm"
+          style={{ flex: 1 }}
         >
           <BookOpen size={16} />
           View Class

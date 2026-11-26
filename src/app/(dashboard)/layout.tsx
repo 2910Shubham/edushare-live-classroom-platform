@@ -18,19 +18,19 @@ export default async function DashboardLayout({
 
   return (
     <Providers>
-      <div style={{ minHeight: '100vh', background: '#F8F7FF' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--clay-bg)' }}>
         <DashboardNav role={role} />
         {/* Main content area */}
         <main
           style={{
-            marginLeft: 240,
-            paddingTop: 64,
+            marginLeft: 252,
+            paddingTop: 80,
             minHeight: '100vh',
             position: 'relative',
           }}
           className="dashboard-main"
         >
-          <div style={{ padding: 32, maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ padding: 28, maxWidth: 1200, margin: '0 auto' }}>
             {children}
           </div>
         </main>
@@ -39,7 +39,7 @@ export default async function DashboardLayout({
           @media (max-width: 768px) {
             .dashboard-main {
               margin-left: 0 !important;
-              padding-top: 60px !important;
+              padding-top: 76px !important;
             }
             .dashboard-main > div {
               padding: 16px !important;

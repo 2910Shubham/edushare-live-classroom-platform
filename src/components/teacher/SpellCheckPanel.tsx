@@ -39,29 +39,16 @@ export function SpellCheckPanel() {
   if (!isOpen) {
     return (
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
+        className="clay-btn clay-btn-sm"
         style={{
           position: 'fixed',
           bottom: 24,
           right: 24,
-          background: 'linear-gradient(135deg, #6C63FF 0%, #8B5CF6 100%)',
-          color: 'white',
-          border: 'none',
           borderRadius: 999,
-          padding: '12px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          boxShadow: '0 8px 32px rgba(108, 99, 255, 0.3)',
-          cursor: 'pointer',
           zIndex: 50,
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 600,
-          fontSize: 14,
-          transition: 'transform 0.2s',
         }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
       >
         <Wand2 size={18} />
         AI Assistant
@@ -71,32 +58,51 @@ export function SpellCheckPanel() {
 
   return (
     <div
+      className="clay clay-modal"
       style={{
         position: 'fixed',
         bottom: 24,
         right: 24,
-        width: 320,
-        background: '#FFFFFF',
-        borderRadius: 20,
-        boxShadow: '0 12px 48px rgba(108, 99, 255, 0.2)',
-        border: '1px solid rgba(108, 99, 255, 0.1)',
+        width: 330,
+        maxWidth: 'calc(100vw - 32px)',
         zIndex: 50,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
       }}
-      className="animate-scaleIn"
     >
-      <div style={{ padding: '16px 20px', background: 'linear-gradient(135deg, rgba(108,99,255,0.05) 0%, rgba(67,232,216,0.05) 100%)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(108,99,255,0.05)' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#2D2B55', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Wand2 size={18} color="#6C63FF" />
+      <div
+        style={{
+          padding: '16px 20px',
+          background: '#f6f3ff',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid rgba(124, 108, 255, 0.12)',
+        }}
+      >
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--clay-ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Wand2 size={18} color="var(--clay-purple-dark)" />
           AI Spell Check
         </h3>
         <button
+          type="button"
           onClick={() => setIsOpen(false)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A8A6C8' }}
+          aria-label="Close AI Spell Check"
+          style={{
+            background: '#ffffff',
+            border: 'none',
+            borderRadius: 10,
+            width: 32,
+            height: 32,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'var(--clay-ink-soft)',
+          }}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
@@ -105,29 +111,24 @@ export function SpellCheckPanel() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type or paste text here to check spelling and grammar before sharing..."
+          className="clay-inset"
           style={{
             width: '100%',
             height: 100,
             padding: 12,
-            borderRadius: 12,
-            border: '1px solid rgba(108,99,255,0.2)',
-            outline: 'none',
             resize: 'none',
             fontSize: 14,
-            color: '#2D2B55',
             fontFamily: "'Inter', sans-serif",
             marginBottom: 16,
-            transition: 'border-color 0.2s',
           }}
-          onFocus={(e) => e.target.style.borderColor = '#6C63FF'}
-          onBlur={(e) => e.target.style.borderColor = 'rgba(108,99,255,0.2)'}
         />
 
         <button
+          type="button"
           onClick={handleCheck}
           disabled={!text.trim() || isChecking}
-          className="btn-primary"
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          className="clay-btn clay-btn-sm"
+          style={{ width: '100%' }}
         >
           {isChecking ? (
             <>
@@ -143,21 +144,22 @@ export function SpellCheckPanel() {
         </button>
 
         {correctedText && (
-          <div style={{ marginTop: 20, animation: 'fadeInUp 0.3s ease-out' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, color: '#0CA89A', fontSize: 13, fontWeight: 600 }}>
-              <CheckCircle2 size={16} />
+          <div style={{ marginTop: 18 }} className="animate-fadeInUp">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, color: '#06453f', fontSize: 13, fontWeight: 700 }}>
+              <CheckCircle2 size={16} color="var(--clay-teal-dark)" />
               Corrected Text
             </div>
-            <div style={{ padding: 12, background: 'rgba(67,232,216,0.05)', borderRadius: 12, border: '1px solid rgba(67,232,216,0.2)', fontSize: 14, color: '#2D2B55', lineHeight: 1.5 }}>
+            <div className="clay-row" style={{ padding: 12, background: '#e7fbf7', borderColor: 'rgba(20, 169, 154, 0.3)', fontSize: 14, color: 'var(--clay-ink)', lineHeight: 1.5 }}>
               {correctedText}
             </div>
             <button
+              type="button"
               onClick={() => {
                 navigator.clipboard.writeText(correctedText);
                 toast.success('Copied to clipboard');
               }}
-              className="btn-secondary"
-              style={{ width: '100%', marginTop: 12, padding: '8px 16px', fontSize: 13 }}
+              className="clay-btn clay-btn-ghost clay-btn-sm"
+              style={{ width: '100%', marginTop: 12 }}
             >
               Copy to Clipboard
             </button>

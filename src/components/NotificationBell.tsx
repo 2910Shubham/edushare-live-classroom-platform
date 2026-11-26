@@ -100,42 +100,38 @@ export function NotificationBell() {
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={isShaking ? 'animate-shake' : ''}
+        aria-label="Notifications"
+        aria-expanded={isOpen}
+        className={`clay-btn clay-btn-ghost ${isShaking ? 'animate-shake' : ''}`}
         style={{
           position: 'relative',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 8,
-          borderRadius: 10,
-          transition: 'background 0.2s',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(108,99,255,0.08)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'none';
+          width: 40,
+          height: 40,
+          padding: 0,
+          borderRadius: 14,
         }}
       >
-        <Bell size={22} color="#5A5880" />
+        <Bell size={19} color="var(--clay-ink)" />
         {unreadCount > 0 && (
           <span
             style={{
               position: 'absolute',
-              top: 2,
-              right: 2,
+              top: -4,
+              right: -4,
               minWidth: 18,
               height: 18,
-              borderRadius: '50%',
-              background: '#FF6B9D',
-              color: 'white',
+              borderRadius: '999px',
+              background: 'linear-gradient(145deg, #ff79ab, #d6336c)',
+              color: '#ffffff',
               fontSize: 11,
-              fontWeight: 600,
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0 4px',
+              padding: '0 5px',
+              boxShadow: '0 2px 6px rgba(214, 51, 108, 0.35)',
             }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -145,18 +141,15 @@ export function NotificationBell() {
 
       {isOpen && (
         <div
-          className="animate-scaleIn"
+          className="clay clay-modal"
           style={{
             position: 'absolute',
             top: '100%',
             right: 0,
-            marginTop: 8,
-            width: 360,
+            marginTop: 10,
+            width: 340,
+            maxWidth: 'calc(100vw - 24px)',
             maxHeight: 440,
-            background: '#FFFFFF',
-            borderRadius: 16,
-            boxShadow: '0 8px 40px rgba(108, 99, 255, 0.15)',
-            border: '1px solid rgba(108, 99, 255, 0.1)',
             zIndex: 50,
             overflow: 'hidden',
           }}
@@ -164,7 +157,7 @@ export function NotificationBell() {
           <div
             style={{
               padding: '16px 20px',
-              borderBottom: '1px solid rgba(108,99,255,0.08)',
+              borderBottom: '1px solid rgba(124, 108, 255, 0.12)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -174,7 +167,7 @@ export function NotificationBell() {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: '#2D2B55',
+                color: 'var(--clay-ink)',
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
               }}
             >
@@ -182,14 +175,14 @@ export function NotificationBell() {
             </h3>
             {unreadCount > 0 && (
               <button
+                type="button"
                 onClick={markAllRead}
+                className="clay-pill"
                 style={{
-                  background: 'none',
                   border: 'none',
-                  color: '#6C63FF',
-                  fontSize: 13,
-                  fontWeight: 500,
                   cursor: 'pointer',
+                  fontSize: 12,
+                  padding: '4px 10px',
                 }}
               >
                 Mark all read
@@ -197,40 +190,39 @@ export function NotificationBell() {
             )}
           </div>
 
-          <div style={{ overflowY: 'auto', maxHeight: 380 }}>
+          <div style={{ overflowY: 'auto', maxHeight: 370, padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
             {notifications.length === 0 ? (
               <div
                 style={{
-                  padding: 40,
+                  padding: 36,
                   textAlign: 'center',
-                  color: '#A8A6C8',
+                  color: 'var(--clay-ink-soft)',
                   fontSize: 14,
                 }}
               >
-                <Bell size={32} color="#A8A6C8" style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                <Bell size={32} color="var(--clay-ink-soft)" style={{ margin: '0 auto 8px', opacity: 0.5 }} />
                 <p>No notifications yet</p>
               </div>
             ) : (
               notifications.slice(0, 10).map((n) => (
                 <div
                   key={n.id}
+                  className="clay-row"
                   style={{
-                    padding: '14px 20px',
-                    borderBottom: '1px solid rgba(108,99,255,0.04)',
-                    background: n.isRead ? 'transparent' : 'rgba(108,99,255,0.03)',
+                    padding: '12px 14px',
+                    background: n.isRead ? '#faf8ff' : '#ece8ff',
                     display: 'flex',
                     gap: 12,
                     alignItems: 'flex-start',
-                    transition: 'background 0.2s',
                   }}
                 >
-                  <span style={{ fontSize: 20 }}>{getNotificationIcon(n.type)}</span>
+                  <span style={{ fontSize: 18 }}>{getNotificationIcon(n.type)}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p
                       style={{
                         fontSize: 14,
-                        fontWeight: n.isRead ? 400 : 600,
-                        color: '#2D2B55',
+                        fontWeight: n.isRead ? 500 : 700,
+                        color: 'var(--clay-ink)',
                         marginBottom: 2,
                       }}
                     >
@@ -239,7 +231,7 @@ export function NotificationBell() {
                     <p
                       style={{
                         fontSize: 13,
-                        color: '#5A5880',
+                        color: 'var(--clay-ink-soft)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -247,7 +239,7 @@ export function NotificationBell() {
                     >
                       {n.message}
                     </p>
-                    <p style={{ fontSize: 11, color: '#A8A6C8', marginTop: 4 }}>
+                    <p style={{ fontSize: 11, color: 'var(--clay-ink-soft)', marginTop: 4 }}>
                       {getRelativeTime(n.createdAt)}
                     </p>
                   </div>

@@ -60,21 +60,19 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {materials.length === 0 ? (
-          <p style={{ color: '#A8A6C8', fontSize: 15 }}>No materials have been uploaded yet.</p>
+          <p style={{ color: 'var(--clay-ink-soft)', fontSize: 15 }}>No materials have been uploaded yet.</p>
         ) : (
           materials.map((m) => (
             <button
               key={m.id}
               type="button"
               onClick={() => openPreview(m)}
+              className="clay-row"
               style={{
-                padding: 16,
-                border: '1px solid rgba(108,99,255,0.1)',
-                borderRadius: 12,
+                padding: 14,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                background: 'rgba(255,255,255,0.5)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 gap: 12,
@@ -83,17 +81,17 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
                 <div
                   aria-hidden
+                  className={m.type === 'IMAGE' ? undefined : m.type === 'PDF' ? 'clay-icon clay-icon-sm clay-icon-purple' : 'clay-icon clay-icon-sm clay-icon-yellow'}
                   style={{
                     width: 46,
                     height: 46,
-                    borderRadius: 12,
-                    border: '1px solid rgba(108,99,255,0.12)',
-                    background: 'rgba(108,99,255,0.04)',
+                    borderRadius: 14,
                     overflow: 'hidden',
                     flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    background: m.type === 'IMAGE' ? '#ebe6ff' : undefined,
                   }}
                 >
                   {m.type === 'IMAGE' ? (
@@ -104,46 +102,40 @@ export function StudentMaterialsClient({ materials }: { materials: ClientMateria
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : m.type === 'PDF' ? (
-                    <FileText size={20} color="#6C63FF" />
+                    <FileText size={20} />
                   ) : (
-                    <Presentation size={20} color="#FFB347" />
+                    <Presentation size={20} />
                   )}
                 </div>
 
                 <div style={{ minWidth: 0 }}>
-                <h3 style={{ fontWeight: 700, color: '#2D2B55', fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {m.title}
-                </h3>
-                  <div style={{ display: 'flex', gap: 10, marginTop: 4, fontSize: 13, color: '#5A5880', flexWrap: 'wrap' }}>
-                    <span className="badge-subject">{m.type}</span>
+                  <h3 style={{ fontWeight: 700, color: 'var(--clay-ink)', fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.title}
+                  </h3>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 4, fontSize: 13, color: 'var(--clay-ink-soft)', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span className="clay-pill clay-pill-yellow" style={{ padding: '2px 10px', fontSize: 11 }}>{m.type}</span>
                     <span style={{ whiteSpace: 'nowrap' }}>{formatDate(m.createdAt)}</span>
                   </div>
-              </div>
+                </div>
               </div>
               <a
                 href={m.fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Download ${m.title}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   void trackButton('material_download', m.title, {
                     metadata: { materialId: m.id, type: m.type },
                   });
                 }}
+                className="clay-btn clay-btn-ghost"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
                   width: 40,
                   height: 40,
-                  borderRadius: 10,
-                  border: '1px solid rgba(108,99,255,0.15)',
-                  background: 'white',
-                  fontWeight: 700,
-                  color: '#2D2B55',
+                  padding: 0,
+                  borderRadius: 14,
                   flexShrink: 0,
-                  justifyContent: 'center',
-                  textDecoration: 'none',
                 }}
                 title="Open / download"
               >

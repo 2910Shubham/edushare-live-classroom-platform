@@ -41,37 +41,37 @@ export default async function StudentLibraryPage({
       <PageBackground variant="student" />
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Header */}
-        <div style={{ marginBottom: 40 }}>
+        <div style={{ marginBottom: 36 }}>
           <h1
             style={{
               fontSize: 32,
               fontWeight: 700,
-              color: '#2D2B55',
+              color: 'var(--clay-ink)',
               marginBottom: 8,
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
             My Library 📚
           </h1>
-          <p style={{ color: '#5A5880', fontSize: 16 }}>
+          <p style={{ color: 'var(--clay-ink-soft)', fontSize: 16 }}>
             Access all your class notes and AI-generated summaries in one place.
           </p>
         </div>
 
         {notes.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 20px', background: '#FFFFFF', borderRadius: 20, border: '1px dashed rgba(108,99,255,0.2)' }}>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(108,99,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-              <BookOpen size={32} color="#6C63FF" />
+          <div className="clay clay-lg" style={{ textAlign: 'center', padding: '64px 24px' }}>
+            <div className="clay-icon clay-icon-purple" style={{ width: 72, height: 72, borderRadius: '50%', margin: '0 auto 20px' }} aria-hidden="true">
+              <BookOpen size={30} />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2B55', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h3 style={{ fontSize: 19, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               No notes yet
             </h3>
-            <p style={{ color: '#5A5880', fontSize: 15, maxWidth: 320, margin: '0 auto' }}>
+            <p style={{ color: 'var(--clay-ink-soft)', fontSize: 15, maxWidth: 340, margin: '0 auto', lineHeight: 1.6 }}>
               When your teacher shares materials, AI will automatically generate study notes for you here.
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
             {notes.map((note) => (
               <NotesCard
                 key={note.id}

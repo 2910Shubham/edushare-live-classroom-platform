@@ -32,29 +32,29 @@ export default async function TeacherDashboard() {
       <PageBackground variant="teacher" />
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Header */}
-        <div className="dashboard-header" style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="dashboard-header" style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1
               style={{
                 fontSize: 32,
                 fontWeight: 700,
-                color: '#2D2B55',
+                color: 'var(--clay-ink)',
                 marginBottom: 8,
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
               }}
             >
               Good morning, {userName} 👋
             </h1>
-            <p style={{ color: '#5A5880', fontSize: 16 }}>
+            <p style={{ color: 'var(--clay-ink-soft)', fontSize: 16 }}>
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 40 }}>
-          <div className="edu-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(108,99,255,0.1)', color: '#6C63FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 36 }}>
+          <div className="clay clay-md" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="clay-icon clay-icon-purple" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                 <line x1="16" y1="2" x2="16" y2="6" />
@@ -63,14 +63,14 @@ export default async function TeacherDashboard() {
               </svg>
             </div>
             <div>
-              <p style={{ color: '#A8A6C8', fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Total Classrooms</p>
-              <p style={{ fontSize: 24, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <p style={{ color: 'var(--clay-ink-soft)', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Total Classrooms</p>
+              <p style={{ fontSize: 26, fontWeight: 700, color: 'var(--clay-ink)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {classrooms.length}
               </p>
             </div>
           </div>
-          <div className="edu-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(67,232,216,0.1)', color: '#0CA89A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="clay clay-md" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="clay-icon clay-icon-teal" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
@@ -79,14 +79,14 @@ export default async function TeacherDashboard() {
               </svg>
             </div>
             <div>
-              <p style={{ color: '#A8A6C8', fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Total Students</p>
-              <p style={{ fontSize: 24, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <p style={{ color: 'var(--clay-ink-soft)', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Total Students</p>
+              <p style={{ fontSize: 26, fontWeight: 700, color: 'var(--clay-ink)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {totalStudents}
               </p>
             </div>
           </div>
-          <div className="edu-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,107,157,0.1)', color: '#FF6B9D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="clay clay-md" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="clay-icon clay-icon-pink" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
@@ -96,8 +96,8 @@ export default async function TeacherDashboard() {
               </svg>
             </div>
             <div>
-              <p style={{ color: '#A8A6C8', fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Materials Shared</p>
-              <p style={{ fontSize: 24, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <p style={{ color: 'var(--clay-ink-soft)', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Materials Shared</p>
+              <p style={{ fontSize: 26, fontWeight: 700, color: 'var(--clay-ink)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {totalMaterials}
               </p>
             </div>
@@ -106,31 +106,31 @@ export default async function TeacherDashboard() {
 
         {/* Classrooms */}
         <div className="section-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--clay-ink)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {role === 'ADMIN' ? 'All Classrooms' : 'Your Classrooms'}
           </h2>
           <CreateClassroomButton />
         </div>
 
         {classrooms.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', background: '#FFFFFF', borderRadius: 20, border: '1px dashed rgba(108,99,255,0.2)' }}>
-            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" style={{ margin: '0 auto 24px' }}>
-              <rect x="20" y="30" width="80" height="56" rx="4" fill="rgba(108,99,255,0.1)" stroke="#6C63FF" strokeWidth="2" />
-              <line x1="30" y1="86" x2="90" y2="86" stroke="#6C63FF" strokeWidth="2" strokeLinecap="round" />
-              <polygon points="60,15 65,22 72,22 66,27 68,34 60,30 52,34 54,27 48,22 55,22" fill="#FFB347" />
-              <circle cx="95" cy="20" r="4" fill="#43E8D8" />
-              <circle cx="25" cy="15" r="3" fill="#FF6B9D" />
-            </svg>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2B55', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="clay clay-lg" style={{ textAlign: 'center', padding: '56px 24px' }}>
+            <div className="clay-icon clay-icon-purple" style={{ margin: '0 auto 20px', width: 68, height: 68, borderRadius: 22 }} aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               No classrooms yet
             </h3>
-            <p style={{ color: '#5A5880', fontSize: 15, marginBottom: 24, maxWidth: 300, margin: '0 auto 24px' }}>
+            <p style={{ color: 'var(--clay-ink-soft)', fontSize: 15, maxWidth: 320, margin: '0 auto 24px', lineHeight: 1.6 }}>
               Create your first classroom to get started and share the join code with your students.
             </p>
             <CreateClassroomButton />
           </div>
         ) : (
-          <div className="classroom-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
+          <div className="classroom-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
             {classrooms.map((c) => (
               <TeacherClassroomCard
                 key={c.id}

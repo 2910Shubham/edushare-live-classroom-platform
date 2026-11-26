@@ -45,27 +45,33 @@ export default async function StudentClassroomPage({ params }: { params: Promise
   return (
     <>
       <PageBackground variant="student" />
-      <div style={{ position: 'relative', zIndex: 10, padding: '24px' }}>
+      <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Header */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <Link href="/student" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5A5880', textDecoration: 'none' }}>
-              <ArrowLeft size={16} /> Back to Dashboard
+        <div className="clay clay-md" style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
+            <Link
+              href="/student"
+              className="clay-pill"
+              style={{ textDecoration: 'none' }}
+            >
+              <ArrowLeft size={15} /> Back to Dashboard
             </Link>
             <PushNotificationToggle />
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: '#2D2B55', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--clay-ink)', fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: 4 }}>
             {classroom.name}
           </h1>
-          <p style={{ color: '#5A5880' }}>Taught by {classroom.teacher.name}</p>
+          <p style={{ color: 'var(--clay-ink-soft)', fontSize: 15 }}>Taught by {classroom.teacher.name}</p>
         </div>
 
         <div style={{ display: 'flex', gap: 24, flexDirection: 'column' }}>
           
           {/* Materials Section */}
-          <div className="edu-card" style={{ flex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#2D2B55', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={20} color="#6C63FF" />
+          <div className="clay clay-md" style={{ flex: 1 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="clay-icon clay-icon-sm clay-icon-purple" style={{ width: 36, height: 36, borderRadius: 12 }} aria-hidden="true">
+                <FileText size={18} />
+              </span>
               Class Materials
             </h2>
             
@@ -83,14 +89,14 @@ export default async function StudentClassroomPage({ params }: { params: Promise
           </div>
 
           {/* Notes Section */}
-          <div className="edu-card" style={{ flex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#2D2B55', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="clay clay-md" style={{ flex: 1 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
               ✨ AI Generated Notes
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {notes.length === 0 ? (
-                <p style={{ color: '#A8A6C8', fontSize: 15 }}>No notes have been generated yet.</p>
+                <p style={{ color: 'var(--clay-ink-soft)', fontSize: 15 }}>No notes have been generated yet.</p>
               ) : (
                 notes.map((note) => (
                   <NotesCard 

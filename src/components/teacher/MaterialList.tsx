@@ -56,7 +56,7 @@ export function MaterialList({
 
       return next;
     });
-  }, []);
+  }, [classroomId]);
 
   // Listen for external removals (e.g. from the board's X button)
   useEffect(() => {
@@ -138,21 +138,21 @@ export function MaterialList({
 
   return (
     <div
-      className="edu-card"
+      className="clay clay-md"
       style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
     >
       <h3
         style={{
           fontSize: 16,
           fontWeight: 700,
-          color: '#2D2B55',
-          marginBottom: 16,
+          color: 'var(--clay-ink)',
+          marginBottom: 14,
           display: 'flex',
           alignItems: 'center',
           gap: 8,
         }}
       >
-        <Share2 size={18} color="#6C63FF" />
+        <Share2 size={18} color="var(--clay-purple-dark)" />
         Shared Materials
       </h3>
 
@@ -162,13 +162,13 @@ export function MaterialList({
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: 12,
+          gap: 10,
         }}
       >
         {materials.length === 0 ? (
           <p
             style={{
-              color: '#A8A6C8',
+              color: 'var(--clay-ink-soft)',
               fontSize: 14,
               textAlign: 'center',
               padding: '20px 0',
@@ -183,36 +183,15 @@ export function MaterialList({
             return (
               <div
                 key={material.id}
+                className="clay-row"
                 style={{
                   padding: 12,
-                  background: isAdded
-                    ? 'rgba(67,232,216,0.08)'
-                    : 'rgba(108,99,255,0.03)',
-                  borderRadius: 12,
-                  border: `1px solid ${
-                    isAdded
-                      ? 'rgba(67,232,216,0.3)'
-                      : 'rgba(108,99,255,0.08)'
-                  }`,
+                  background: isAdded ? '#e3fbf6' : '#faf8ff',
+                  borderColor: isAdded ? 'rgba(20, 169, 154, 0.45)' : undefined,
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isAdded) {
-                    e.currentTarget.style.background =
-                      'rgba(108,99,255,0.08)';
-                    e.currentTarget.style.transform = 'translateX(4px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isAdded) {
-                    e.currentTarget.style.background =
-                      'rgba(108,99,255,0.03)';
-                    e.currentTarget.style.transform = 'translateX(0)';
-                  }
                 }}
                 onClick={() => toggleOnBoard(material)}
               >
@@ -221,7 +200,7 @@ export function MaterialList({
                     style={{
                       fontWeight: 600,
                       fontSize: 14,
-                      color: isAdded ? '#0CA89A' : '#2D2B55',
+                      color: isAdded ? '#06453f' : 'var(--clay-ink)',
                       marginBottom: 4,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -235,7 +214,7 @@ export function MaterialList({
                       display: 'flex',
                       justifyContent: 'space-between',
                       fontSize: 12,
-                      color: '#A8A6C8',
+                      color: isAdded ? '#0b6e64' : 'var(--clay-ink-soft)',
                     }}
                   >
                     <span
@@ -258,38 +237,32 @@ export function MaterialList({
                   {isAdded && (
                     <CheckCircle2
                       size={18}
-                      color="#43E8D8"
+                      color="var(--clay-teal-dark)"
                       style={{ flexShrink: 0 }}
                     />
                   )}
                   
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       void trackButton('material_delete_click', material.title, { classroomId });
                       setDeleteConfirm(material);
                     }}
+                    aria-label={`Delete ${material.title}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       width: 32,
                       height: 32,
-                      borderRadius: '8px',
-                      border: '1px solid rgba(239, 68, 68, 0.2)',
-                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                      color: '#ef4444',
+                      borderRadius: 10,
+                      border: 'none',
+                      backgroundColor: '#ffebf0',
+                      color: '#b4233c',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'transform 0.15s ease',
                       flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
                     }}
                     title="Delete material"
                   >
@@ -305,105 +278,63 @@ export function MaterialList({
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
+          className="clay-modal-backdrop"
+          style={{ zIndex: 1000 }}
           onClick={() => !isDeleting && setDeleteConfirm(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-material-title"
         >
           <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              padding: '24px',
-              maxWidth: '400px',
-              width: '90%',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            }}
+            className="clay clay-lg clay-modal"
+            style={{ maxWidth: 420, width: '100%' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
               <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                className="clay-icon clay-icon-pink"
+                style={{ width: 48, height: 48, borderRadius: '50%' }}
+                aria-hidden="true"
               >
-                <AlertTriangle size={24} color="#ef4444" />
+                <AlertTriangle size={22} />
               </div>
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#1f2937' }}>
+                <h3 id="delete-material-title" style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--clay-ink)' }}>
                   Delete Material
                 </h3>
-                <p style={{ margin: 0, fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-                  Are you sure you want to delete "{deleteConfirm.title}"?
+                <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--clay-ink-soft)' }}>
+                  Are you sure you want to delete &ldquo;{deleteConfirm.title}&rdquo;?
                 </p>
               </div>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>
+            <div style={{ marginBottom: 22 }}>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--clay-ink-soft)', lineHeight: 1.55 }}>
                 This action cannot be undone. The material will be permanently deleted from both the platform and Cloudinary storage.
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button
+                type="button"
                 onClick={() => !isDeleting && setDeleteConfirm(null)}
                 disabled={isDeleting}
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: 'white',
-                  color: '#374151',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  cursor: isDeleting ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s',
-                  opacity: isDeleting ? 0.5 : 1,
-                }}
+                className="clay-btn clay-btn-ghost clay-btn-sm"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleDelete(deleteConfirm)}
                 disabled={isDeleting}
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  cursor: isDeleting ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s',
-                  opacity: isDeleting ? 0.5 : 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
+                className="clay-btn clay-btn-pink clay-btn-sm"
               >
                 {isDeleting ? (
                   <>
                     <div
                       style={{
-                        width: '16px',
-                        height: '16px',
+                        width: 16,
+                        height: 16,
                         border: '2px solid #ffffff',
                         borderTop: '2px solid transparent',
                         borderRadius: '50%',

@@ -43,23 +43,17 @@ export function CreateClassroomButton() {
 
   const inputStyle = {
     width: '100%',
-    padding: '12px 16px',
-    borderRadius: 12,
-    border: '1px solid rgba(108, 99, 255, 0.15)',
-    background: '#FAFAFE',
+    padding: '13px 16px',
     fontSize: 15,
-    color: '#2D2B55',
     fontFamily: "'Inter', sans-serif",
-    outline: 'none',
-    boxSizing: 'border-box' as const,
   };
 
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="btn-primary"
-        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', fontSize: 14 }}
+        className="clay-btn clay-btn-sm"
       >
         <Plus size={16} />
         Create
@@ -67,50 +61,72 @@ export function CreateClassroomButton() {
 
       {open && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 24 }}
+          className="clay-modal-backdrop"
           onClick={() => setOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-classroom-title"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="animate-scaleIn"
-            style={{ background: '#FFFFFF', borderRadius: 20, padding: '32px', maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(108,99,255,0.2)' }}
+            className="clay clay-lg clay-modal"
+            style={{ maxWidth: 440, width: '100%' }}
           >
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#2D2B55', marginBottom: 24, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2
+              id="create-classroom-title"
+              style={{ fontSize: 22, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 22, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
               Create Classroom
             </h2>
             <form onSubmit={handleCreate}>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#2D2B55', marginBottom: 6 }}>
+                <label
+                  htmlFor="classroom-name-input"
+                  style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--clay-ink)', marginBottom: 8 }}
+                >
                   Classroom Name *
                 </label>
                 <input
+                  id="classroom-name-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Physics 101"
                   required
+                  className="clay-inset"
                   style={inputStyle}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#6C63FF'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.15)'; }}
                 />
               </div>
               <div style={{ marginBottom: 24 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#2D2B55', marginBottom: 6 }}>
+                <label
+                  htmlFor="classroom-subject-input"
+                  style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--clay-ink)', marginBottom: 8 }}
+                >
                   Subject (optional)
                 </label>
                 <input
+                  id="classroom-subject-input"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="e.g. Science"
+                  className="clay-inset"
                   style={inputStyle}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#6C63FF'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.15)'; }}
                 />
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, padding: '12px', borderRadius: 12, border: '1px solid rgba(108,99,255,0.15)', background: '#FFF', color: '#5A5880', fontSize: 15, cursor: 'pointer', fontWeight: 500 }}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="clay-btn clay-btn-ghost clay-btn-sm"
+                  style={{ flex: 1 }}
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={loading} className="btn-primary" style={{ flex: 1, padding: '12px', fontSize: 15, opacity: loading ? 0.7 : 1 }}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="clay-btn clay-btn-sm"
+                  style={{ flex: 1 }}
+                >
                   {loading ? 'Creating...' : 'Create'}
                 </button>
               </div>

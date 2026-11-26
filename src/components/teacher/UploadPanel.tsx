@@ -230,15 +230,17 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
 
   if (success) {
     return (
-      <div className="edu-card" style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <CheckCircle size={48} color="#43E8D8" style={{ margin: '0 auto 16px' }} />
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2B55', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <div className="clay clay-md" style={{ textAlign: 'center', padding: '32px 20px' }}>
+        <div className="clay-icon clay-icon-teal" style={{ margin: '0 auto 16px' }} aria-hidden="true">
+          <CheckCircle size={28} />
+        </div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Upload Complete!
         </h3>
-        <p style={{ color: '#5A5880', fontSize: 14, marginBottom: 24 }}>
+        <p style={{ color: 'var(--clay-ink-soft)', fontSize: 14, marginBottom: 20 }}>
           {title} has been shared with the class. AI is generating notes in the background.
         </p>
-        <button onClick={resetForm} className="btn-secondary">
+        <button type="button" onClick={resetForm} className="clay-btn clay-btn-ghost clay-btn-sm">
           Upload Another File
         </button>
       </div>
@@ -246,8 +248,8 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
   }
 
   return (
-    <div className="edu-card">
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2B55', marginBottom: 16, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="clay clay-md">
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 16, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         Share Material
       </h3>
 
@@ -264,16 +266,15 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
               // Let the paste event fire; this keeps behavior consistent.
             }
           }}
+          className="clay-inset"
           style={{
-            border: `2px dashed ${isDragging ? '#6C63FF' : 'rgba(108,99,255,0.2)'}`,
-            borderRadius: 16,
-            padding: '40px 24px',
+            border: `2px dashed ${isDragging ? 'var(--clay-purple)' : 'rgba(124, 108, 255, 0.35)'}`,
+            borderRadius: 20,
+            padding: '28px 18px',
             textAlign: 'center',
-            background: isDragging ? 'rgba(108,99,255,0.04)' : '#FAFAFA',
+            background: isDragging ? '#e4deff' : '#ebe6ff',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            marginBottom: 16,
-            outline: 'none',
+            marginBottom: 14,
           }}
         >
           <input
@@ -283,11 +284,11 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
             accept="image/*, application/pdf, .ppt, .pptx"
             style={{ display: 'none' }}
           />
-          <UploadCloud size={40} color={isDragging ? '#6C63FF' : '#A8A6C8'} style={{ margin: '0 auto 12px' }} />
-          <p style={{ color: '#2D2B55', fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
+          <UploadCloud size={38} color={isDragging ? 'var(--clay-purple-dark)' : 'var(--clay-purple)'} style={{ margin: '0 auto 10px' }} />
+          <p style={{ color: 'var(--clay-ink)', fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
             Click or drag file to upload
           </p>
-          <p style={{ color: '#A8A6C8', fontSize: 13 }}>
+          <p style={{ color: 'var(--clay-ink-soft)', fontSize: 13 }}>
             PDF, Image, or PowerPoint (max 20MB). Tip: click here and press Ctrl+V to paste an image.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
@@ -297,23 +298,11 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
                 e.stopPropagation();
                 void handlePasteFromClipboard();
               }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 14px',
-                borderRadius: 12,
-                border: '1px solid rgba(108,99,255,0.18)',
-                background: 'white',
-                color: '#2D2B55',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              }}
+              className="clay-btn clay-btn-ghost clay-btn-sm"
+              style={{ height: 38, padding: '0 14px', fontSize: 13 }}
               title="Tap to paste image from clipboard"
             >
-              <Clipboard size={18} color="#6C63FF" />
+              <Clipboard size={16} color="var(--clay-purple-dark)" />
               Paste from clipboard
             </button>
           </div>
@@ -336,19 +325,17 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
               // Keep it a "paste only" box
               if (e.key !== 'Tab') e.preventDefault();
             }}
+            className="clay"
             style={{
               marginTop: 12,
               width: '100%',
               maxWidth: 420,
               marginInline: 'auto',
-              padding: '12px 14px',
-              borderRadius: 12,
-              border: '1.5px solid rgba(108,99,255,0.18)',
-              background: 'rgba(255,255,255,0.85)',
-              color: '#2D2B55',
+              padding: '10px 14px',
+              borderRadius: 14,
+              color: 'var(--clay-ink)',
               fontSize: 13,
               fontWeight: 600,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
               outline: 'none',
               userSelect: 'text',
               cursor: 'text',
@@ -357,34 +344,36 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
             Tap here, then long-press → Paste image
           </div>
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16 }}>
-            <div style={{ padding: 8, background: 'white', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <FileText size={20} color="#6C63FF" />
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
+            <div className="clay-icon clay-icon-sm clay-icon-purple" style={{ width: 36, height: 36, borderRadius: 12 }} aria-hidden="true">
+              <FileText size={18} />
             </div>
-            <div style={{ padding: 8, background: 'white', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <ImageIcon size={20} color="#43E8D8" />
+            <div className="clay-icon clay-icon-sm clay-icon-teal" style={{ width: 36, height: 36, borderRadius: 12 }} aria-hidden="true">
+              <ImageIcon size={18} />
             </div>
-            <div style={{ padding: 8, background: 'white', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <Presentation size={20} color="#FFB347" />
+            <div className="clay-icon clay-icon-sm clay-icon-yellow" style={{ width: 36, height: 36, borderRadius: 12 }} aria-hidden="true">
+              <Presentation size={18} />
             </div>
           </div>
         </div>
       ) : (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(108,99,255,0.1)' }}>
-            <FileIcon size={24} color="#6C63FF" />
+        <div style={{ marginBottom: 18 }}>
+          <div className="clay-row" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14 }}>
+            <FileIcon size={22} color="var(--clay-purple-dark)" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontWeight: 600, fontSize: 14, color: '#2D2B55', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--clay-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {file.name}
               </p>
-              <p style={{ fontSize: 12, color: '#A8A6C8' }}>
+              <p style={{ fontSize: 12, color: 'var(--clay-ink-soft)' }}>
                 {(file.size / (1024 * 1024)).toFixed(2)} MB
               </p>
             </div>
             {!isUploading && (
               <button
+                type="button"
                 onClick={() => setFile(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A8A6C8', padding: 4 }}
+                aria-label="Remove selected file"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--clay-ink-soft)', padding: 4 }}
               >
                 <X size={20} />
               </button>
@@ -394,7 +383,7 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
       )}
 
       {error && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#FF4757', fontSize: 14, marginBottom: 16, padding: 12, background: 'rgba(255,71,87,0.08)', borderRadius: 8 }}>
+        <div className="clay-error" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }} role="alert">
           <AlertCircle size={18} />
           {error}
         </div>
@@ -402,58 +391,50 @@ export function UploadPanel({ classroomId, onUploadComplete }: UploadPanelProps)
 
       {file && (
         <>
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#5A5880', marginBottom: 6 }}>
+          <div style={{ marginBottom: 18 }}>
+            <label
+              htmlFor={`material-title-${classroomId}`}
+              style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--clay-ink)', marginBottom: 8 }}
+            >
               Title
             </label>
             <input
+              id={`material-title-${classroomId}`}
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Chapter 4: Photosynthesis"
               disabled={isUploading}
+              className="clay-inset"
               style={{
                 width: '100%',
-                padding: '10px 14px',
-                borderRadius: 10,
-                border: '1px solid rgba(108,99,255,0.2)',
-                outline: 'none',
+                padding: '11px 14px',
                 fontSize: 14,
-                color: '#2D2B55',
-                transition: 'border-color 0.2s',
               }}
-              onFocus={(e) => e.target.style.borderColor = '#6C63FF'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(108,99,255,0.2)'}
             />
           </div>
 
           {isUploading && (
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#5A5880', marginBottom: 6 }}>
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--clay-ink-soft)', marginBottom: 6, fontWeight: 600 }}>
                 <span>Uploading...</span>
                 <span>{progress}%</span>
               </div>
-              <div style={{ height: 6, background: 'rgba(108,99,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${progress}%`,
-                    background: 'linear-gradient(90deg, #6C63FF 0%, #43E8D8 100%)',
-                    transition: 'width 0.2s ease',
-                  }}
-                />
+              <div className="clay-progress-track" style={{ height: 10 }}>
+                <div className="clay-progress-fill" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
 
           <button
+            type="button"
             onClick={() => {
               void trackButton('upload_share_click', title, { classroomId });
               handleUpload();
             }}
             disabled={!title || isUploading}
-            className="btn-primary"
-            style={{ width: '100%', opacity: (!title || isUploading) ? 0.7 : 1 }}
+            className="clay-btn clay-btn-sm"
+            style={{ width: '100%' }}
           >
             {isUploading ? 'Uploading...' : 'Share to Board'}
           </button>

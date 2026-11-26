@@ -50,38 +50,51 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
   const userName = session?.user?.name || 'User';
   const userImage = session?.user?.image;
 
+  const rolePillClass =
+    role === 'ADMIN'
+      ? 'clay-pill clay-pill-pink'
+      : role === 'TEACHER'
+      ? 'clay-pill'
+      : 'clay-pill clay-pill-teal';
+
+  const avatarIconClass =
+    role === 'ADMIN'
+      ? 'clay-icon clay-icon-sm clay-icon-pink'
+      : role === 'TEACHER'
+      ? 'clay-icon clay-icon-sm clay-icon-purple'
+      : 'clay-icon clay-icon-sm clay-icon-teal';
+
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Floating Clay Sidebar */}
       <aside
         style={{
           position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 240,
-          background: '#FFFFFF',
-          borderRight: '1px solid rgba(108,99,255,0.08)',
+          left: 16,
+          top: 16,
+          bottom: 16,
+          width: 224,
           display: 'flex',
           flexDirection: 'column',
           zIndex: 30,
-          padding: '24px 16px',
+          padding: '20px 14px',
         }}
-        className="hidden md:flex"
+        className="clay hidden md:flex"
       >
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 40, paddingLeft: 8 }}>
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#6C63FF" />
-            <path d="M8 22V10l8 6-8 6z" fill="white" />
-            <path d="M16 22V10l8 6-8 6z" fill="white" opacity="0.6" />
-          </svg>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, paddingLeft: 6 }}>
+          <div className="clay-icon clay-icon-sm clay-icon-purple" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+              <path d="M8 24V8l10 8-10 8z" fill="white" />
+              <path d="M16 24V8l10 8-10 8z" fill="white" opacity="0.65" />
+            </svg>
+          </div>
           <span
             style={{
               fontSize: 20,
               fontWeight: 700,
               fontFamily: "'Plus Jakarta Sans', sans-serif",
-              color: '#2D2B55',
+              color: 'var(--clay-ink)',
             }}
           >
             EduShare
@@ -89,7 +102,7 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
         </div>
 
         {/* Nav Links */}
-        <nav style={{ flex: 1 }}>
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
           {links.map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
             const Icon = link.icon;
@@ -97,22 +110,22 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
               <Link
                 key={link.href}
                 href={link.href}
+                className={isActive ? 'clay-inset' : undefined}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  padding: '12px 16px',
-                  borderRadius: 12,
-                  marginBottom: 4,
+                  padding: '11px 14px',
+                  borderRadius: 16,
                   textDecoration: 'none',
-                  fontWeight: isActive ? 600 : 400,
-                  fontSize: 15,
-                  color: isActive ? '#6C63FF' : '#5A5880',
-                  background: isActive ? 'rgba(108,99,255,0.08)' : 'transparent',
-                  transition: 'all 0.2s ease',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: 14,
+                  color: isActive ? 'var(--clay-purple-dark)' : 'var(--clay-ink-soft)',
+                  background: isActive ? '#ebe6ff' : 'transparent',
+                  transition: 'background-color 0.18s ease, color 0.18s ease',
                 }}
               >
-                <Icon size={20} />
+                <Icon size={19} />
                 {link.label}
               </Link>
             );
@@ -122,31 +135,24 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
         {/* User Info */}
         <div
           style={{
-            borderTop: '1px solid rgba(108,99,255,0.08)',
-            paddingTop: 16,
+            borderTop: '1px solid rgba(124, 108, 255, 0.12)',
+            paddingTop: 14,
+            marginTop: 12,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingLeft: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingLeft: 4 }}>
             {userImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={userImage}
                 alt={userName}
-                style={{ width: 36, height: 36, borderRadius: '50%' }}
+                className="clay-avatar-ring"
+                style={{ width: 38, height: 38, objectFit: 'cover', flexShrink: 0 }}
               />
             ) : (
               <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: role === 'ADMIN' ? 'rgba(255,107,157,0.1)' : role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
-                  color: role === 'ADMIN' ? '#FF6B9D' : role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 600,
-                  fontSize: 14,
-                }}
+                className={avatarIconClass}
+                style={{ width: 38, height: 38, borderRadius: '50%', fontSize: 14, fontWeight: 700 }}
               >
                 {userName.charAt(0).toUpperCase()}
               </div>
@@ -155,80 +161,74 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
               <p
                 style={{
                   fontSize: 14,
-                  fontWeight: 600,
-                  color: '#2D2B55',
+                  fontWeight: 700,
+                  color: 'var(--clay-ink)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  marginBottom: 4,
                 }}
               >
                 {userName}
               </p>
-              <span className={role === 'ADMIN' ? 'badge-teacher' : role === 'TEACHER' ? 'badge-teacher' : 'badge-student'}>
+              <span className={rolePillClass} style={{ padding: '2px 10px', fontSize: 11 }}>
                 {role === 'ADMIN' ? 'Admin' : role === 'TEACHER' ? 'Teacher' : 'Student'}
               </span>
             </div>
           </div>
           <button
+            type="button"
             onClick={() => signOut({ callbackUrl: '/' })}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '10px 16px',
-              borderRadius: 10,
-              border: 'none',
-              background: 'none',
-              color: '#A8A6C8',
-              cursor: 'pointer',
-              width: '100%',
-              fontSize: 14,
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,107,157,0.08)';
-              e.currentTarget.style.color = '#FF6B9D';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'none';
-              e.currentTarget.style.color = '#A8A6C8';
-            }}
+            className="clay-btn clay-btn-ghost clay-btn-sm"
+            style={{ width: '100%', height: 40, fontSize: 13 }}
           >
-            <LogOut size={18} />
+            <LogOut size={16} />
             Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Mobile Top Bar */}
+      {/* Mobile Floating Clay Top Bar */}
       <div
-        className="md:hidden"
+        className="clay md:hidden"
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 60,
-          background: '#FFFFFF',
-          borderBottom: '1px solid rgba(108,99,255,0.08)',
+          top: 10,
+          left: 12,
+          right: 12,
+          height: 56,
+          borderRadius: 20,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 16px',
+          padding: '0 14px',
           zIndex: 40,
         }}
       >
         <button
+          type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          style={{
+            background: '#ece8ff',
+            border: 'none',
+            borderRadius: 12,
+            cursor: 'pointer',
+            width: 38,
+            height: 38,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--clay-ink)',
+          }}
         >
-          {mobileOpen ? <X size={24} color="#2D2B55" /> : <Menu size={24} color="#2D2B55" />}
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <span
           style={{
             fontSize: 18,
             fontWeight: 700,
-            color: '#6C63FF',
+            color: 'var(--clay-ink)',
             fontFamily: "'Plus Jakarta Sans', sans-serif",
           }}
         >
@@ -240,41 +240,60 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
       {/* Mobile Sidebar Overlay */}
       {mobileOpen && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.3)',
-            zIndex: 35,
-          }}
+          className="clay-modal-backdrop"
+          style={{ justifyContent: 'flex-start', padding: 12, zIndex: 45 }}
           onClick={() => setMobileOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            className="clay clay-md clay-modal"
             style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 260,
-              background: '#FFFFFF',
-              padding: '24px 16px',
+              width: 264,
+              height: '100%',
               display: 'flex',
               flexDirection: 'column',
             }}
           >
-            <div style={{ marginBottom: 32, paddingLeft: 8 }}>
-              <span
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="clay-icon clay-icon-sm clay-icon-purple" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+                    <path d="M8 24V8l10 8-10 8z" fill="white" />
+                    <path d="M16 24V8l10 8-10 8z" fill="white" opacity="0.65" />
+                  </svg>
+                </div>
+                <span
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: 'var(--clay-ink)',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  }}
+                >
+                  EduShare
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation menu"
                 style={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  color: '#6C63FF',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  background: '#ece8ff',
+                  border: 'none',
+                  borderRadius: 10,
+                  width: 34,
+                  height: 34,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--clay-ink)',
                 }}
               >
-                EduShare
-              </span>
+                <X size={18} />
+              </button>
             </div>
-            <nav style={{ flex: 1 }}>
+            <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
               {links.map((link) => {
                 const isActive = pathname === link.href;
                 const Icon = link.icon;
@@ -283,18 +302,17 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
+                    className={isActive ? 'clay-inset' : undefined}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      padding: '12px 16px',
-                      borderRadius: 12,
-                      marginBottom: 4,
+                      padding: '12px 14px',
+                      borderRadius: 16,
                       textDecoration: 'none',
-                      fontWeight: isActive ? 600 : 400,
+                      fontWeight: isActive ? 700 : 500,
                       fontSize: 15,
-                      color: isActive ? '#6C63FF' : '#5A5880',
-                      background: isActive ? 'rgba(108,99,255,0.08)' : 'transparent',
+                      color: isActive ? 'var(--clay-purple-dark)' : 'var(--clay-ink-soft)',
                     }}
                   >
                     <Icon size={20} />
@@ -304,19 +322,10 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
               })}
             </nav>
             <button
+              type="button"
               onClick={() => signOut({ callbackUrl: '/' })}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 16px',
-                borderRadius: 10,
-                border: 'none',
-                background: 'rgba(255,107,157,0.08)',
-                color: '#FF6B9D',
-                cursor: 'pointer',
-                fontSize: 14,
-              }}
+              className="clay-btn clay-btn-pink clay-btn-sm"
+              style={{ width: '100%', marginTop: 12 }}
             >
               <LogOut size={18} />
               Sign Out
@@ -325,47 +334,37 @@ export function DashboardNav({ role }: { role: 'ADMIN' | 'TEACHER' | 'STUDENT' }
         </div>
       )}
 
-      {/* Desktop Top Bar */}
+      {/* Desktop Floating Top Bar */}
       <div
-        className="hidden md:flex"
+        className="clay hidden md:flex"
         style={{
           position: 'fixed',
-          top: 0,
-          left: 240,
-          right: 0,
-          height: 64,
-          background: 'rgba(248,247,255,0.85)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(108,99,255,0.06)',
+          top: 16,
+          left: 256,
+          right: 24,
+          height: 58,
+          borderRadius: 20,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-end',
-          padding: '0 32px',
+          padding: '0 20px',
           zIndex: 20,
-          gap: 16,
+          gap: 14,
         }}
       >
         <NotificationBell />
         {userImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={userImage}
             alt={userName}
-            style={{ width: 36, height: 36, borderRadius: '50%' }}
+            className="clay-avatar-ring"
+            style={{ width: 38, height: 38, objectFit: 'cover' }}
           />
         ) : (
           <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              background: role === 'ADMIN' ? 'rgba(255,107,157,0.1)' : role === 'TEACHER' ? 'rgba(108,99,255,0.1)' : 'rgba(67,232,216,0.1)',
-              color: role === 'ADMIN' ? '#FF6B9D' : role === 'TEACHER' ? '#6C63FF' : '#0CA89A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 600,
-              fontSize: 14,
-            }}
+            className={avatarIconClass}
+            style={{ width: 38, height: 38, borderRadius: '50%', fontSize: 14, fontWeight: 700 }}
           >
             {userName.charAt(0).toUpperCase()}
           </div>

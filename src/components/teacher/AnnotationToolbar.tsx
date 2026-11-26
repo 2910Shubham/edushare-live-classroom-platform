@@ -15,14 +15,14 @@ interface AnnotationToolbarProps {
 }
 
 const PALETTE = [
-  '#6C63FF', // Primary
-  '#FF6B9D', // Secondary
-  '#43E8D8', // Accent
-  '#FFB347', // Warm
-  '#8B5CF6',
-  '#36D5C5',
-  '#2D2B55', // Black/Dark
-  '#FFFFFF', // White
+  '#7c6cff', // Clay Purple
+  '#ff8fc4', // Clay Pink
+  '#3fe0cf', // Clay Teal
+  '#ffd479', // Clay Yellow
+  '#4b3fd1',
+  '#14a99a',
+  '#2b2a55', // Clay Ink
+  '#ffffff', // White
 ];
 
 export function AnnotationToolbar({
@@ -37,19 +37,23 @@ export function AnnotationToolbar({
 }: AnnotationToolbarProps) {
   const ToolButton = ({ tool, icon: Icon }: { tool: ToolType; icon: any }) => (
     <button
+      type="button"
       onClick={() => setActiveTool(tool)}
+      aria-label={`Tool: ${tool}`}
+      aria-pressed={activeTool === tool}
+      className={activeTool === tool ? 'clay-inset' : undefined}
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: 12,
+        width: 42,
+        height: 42,
+        borderRadius: 14,
         border: 'none',
-        background: activeTool === tool ? 'rgba(108,99,255,0.1)' : 'transparent',
-        color: activeTool === tool ? '#6C63FF' : '#5A5880',
+        background: activeTool === tool ? '#ebe6ff' : 'transparent',
+        color: activeTool === tool ? 'var(--clay-purple-dark)' : 'var(--clay-ink-soft)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        transition: 'all 0.2s',
+        transition: 'background-color 0.18s ease, color 0.18s ease',
       }}
       title={`Tool: ${tool}`}
     >
@@ -59,20 +63,17 @@ export function AnnotationToolbar({
 
   return (
     <div
+      className="clay clay-sm"
       style={{
         position: 'absolute',
-        left: 24,
+        left: 20,
         top: '50%',
         transform: 'translateY(-50%)',
-        background: 'rgba(255,255,255,0.95)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: 20,
-        boxShadow: '0 8px 32px rgba(108, 99, 255, 0.15)',
-        border: '1px solid rgba(108, 99, 255, 0.1)',
-        padding: 12,
+        borderRadius: 24,
+        padding: 10,
         display: 'flex',
         flexDirection: 'column',
-        gap: 16,
+        gap: 14,
         zIndex: 20,
       }}
     >
@@ -84,41 +85,46 @@ export function AnnotationToolbar({
         <ToolButton tool="text" icon={Type} />
       </div>
 
-      <div style={{ height: 1, background: 'rgba(108,99,255,0.1)' }} />
+      <div style={{ height: 1, background: 'rgba(124, 108, 255, 0.14)' }} />
 
       {/* Colors */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, padding: '0 4px' }}>
         {PALETTE.map((c) => (
           <button
             key={c}
+            type="button"
             onClick={() => setColor(c)}
+            aria-label={`Color ${c}`}
             style={{
-              width: 16,
-              height: 16,
+              width: 17,
+              height: 17,
               borderRadius: '50%',
               background: c,
-              border: c === '#FFFFFF' ? '1px solid #A8A6C8' : 'none',
+              border: c === '#ffffff' ? '1px solid var(--clay-ink-soft)' : 'none',
               cursor: 'pointer',
-              boxShadow: color === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : 'none',
-              transition: 'all 0.2s',
+              boxShadow: color === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : '0 2px 4px rgba(43,42,85,0.12)',
+              transition: 'transform 0.15s ease',
             }}
           />
         ))}
       </div>
 
-      <div style={{ height: 1, background: 'rgba(108,99,255,0.1)' }} />
+      <div style={{ height: 1, background: 'rgba(124, 108, 255, 0.14)' }} />
 
       {/* Line Width */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
         {[1, 3, 5].map((w) => (
           <button
             key={w}
+            type="button"
             onClick={() => setLineWidth(w)}
+            aria-label={`Stroke width ${w}`}
+            className={lineWidth === w ? 'clay-inset' : undefined}
             style={{
-              width: 24,
-              height: 24,
+              width: 26,
+              height: 26,
               borderRadius: '50%',
-              background: lineWidth === w ? 'rgba(108,99,255,0.1)' : 'transparent',
+              background: lineWidth === w ? '#ebe6ff' : 'transparent',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
@@ -126,53 +132,34 @@ export function AnnotationToolbar({
               cursor: 'pointer',
             }}
           >
-            <div style={{ width: w * 2, height: w * 2, borderRadius: '50%', background: lineWidth === w ? '#6C63FF' : '#5A5880' }} />
+            <div style={{ width: w * 2, height: w * 2, borderRadius: '50%', background: lineWidth === w ? 'var(--clay-purple-dark)' : 'var(--clay-ink-soft)' }} />
           </button>
         ))}
       </div>
 
-      <div style={{ height: 1, background: 'rgba(108,99,255,0.1)' }} />
+      <div style={{ height: 1, background: 'rgba(124, 108, 255, 0.14)' }} />
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
+          type="button"
           onClick={onClear}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            border: 'none',
-            background: 'rgba(255,71,87,0.1)',
-            color: '#FF4757',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
+          aria-label="Clear all annotations"
+          className="clay-btn clay-btn-pink"
+          style={{ width: 42, height: 42, padding: 0, borderRadius: 14 }}
           title="Clear All"
         >
-          <Trash2 size={20} />
+          <Trash2 size={18} />
         </button>
         <button
+          type="button"
           onClick={onSave}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            border: 'none',
-            background: 'linear-gradient(135deg, #6C63FF 0%, #8B5CF6 100%)',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            boxShadow: '0 4px 12px rgba(108, 99, 255, 0.3)',
-          }}
+          aria-label="Save annotations"
+          className="clay-btn"
+          style={{ width: 42, height: 42, padding: 0, borderRadius: 14 }}
           title="Save Annotations"
         >
-          <Save size={20} />
+          <Save size={18} />
         </button>
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Sparkles, Download, Clock } from 'lucide-react';
+import { Sparkles, Download, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 
@@ -12,7 +12,7 @@ interface NotesCardProps {
   createdAt: string;
 }
 
-export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt }: NotesCardProps) {
+export function NotesCard({ materialTitle, content, isAIGenerated, createdAt }: NotesCardProps) {
   const handleDownload = () => {
     try {
       const blob = new Blob([content], { type: 'text/markdown' });
@@ -25,14 +25,14 @@ export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast.success('Notes downloaded');
-    } catch (err) {
+    } catch {
       toast.error('Failed to download notes');
     }
   };
 
   return (
     <div
-      className="edu-card"
+      className="clay clay-md"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -40,18 +40,18 @@ export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt
         maxHeight: 500,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, gap: 12 }}>
         <div>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2B55', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--clay-ink)', marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {materialTitle}
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: '#A8A6C8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--clay-ink-soft)', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Clock size={14} />
               {new Date(createdAt).toLocaleDateString()}
             </span>
             {isAIGenerated && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#6C63FF', background: 'rgba(108,99,255,0.1)', padding: '2px 8px', borderRadius: 12, fontWeight: 600 }}>
+              <span className="clay-pill" style={{ padding: '3px 10px', fontSize: 12 }}>
                 <Sparkles size={12} />
                 AI Generated
               </span>
@@ -59,35 +59,31 @@ export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt
           </div>
         </div>
         <button
+          type="button"
           onClick={handleDownload}
+          aria-label={`Download ${materialTitle} notes`}
+          className="clay-btn clay-btn-ghost"
           style={{
-            background: 'rgba(108,99,255,0.05)',
-            border: 'none',
-            borderRadius: 8,
-            padding: 8,
-            color: '#6C63FF',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
+            width: 40,
+            height: 40,
+            padding: 0,
+            borderRadius: 14,
+            flexShrink: 0,
           }}
           title="Download Markdown"
-          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(108,99,255,0.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(108,99,255,0.05)'}
         >
-          <Download size={18} />
+          <Download size={18} color="var(--clay-purple-dark)" />
         </button>
       </div>
 
       <div
-        className="markdown-body"
+        className="markdown-body clay-row"
         style={{
           flex: 1,
           overflowY: 'auto',
           padding: 16,
-          background: '#FAFAFA',
-          borderRadius: 12,
-          border: '1px solid rgba(108,99,255,0.08)',
           fontSize: 14,
-          color: '#2D2B55',
+          color: 'var(--clay-ink)',
           lineHeight: 1.6,
         }}
       >
@@ -96,14 +92,14 @@ export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt
 
       <style jsx global>{`
         .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-          color: #2D2B55;
+          color: var(--clay-ink);
           margin-top: 1.5em;
           margin-bottom: 0.5em;
           font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .markdown-body h2 {
           font-size: 1.2em;
-          border-bottom: 1px solid rgba(108,99,255,0.1);
+          border-bottom: 1px solid rgba(124, 108, 255, 0.14);
           padding-bottom: 0.3em;
         }
         .markdown-body p {
@@ -117,18 +113,18 @@ export function NotesCard({ id, materialTitle, content, isAIGenerated, createdAt
           margin-bottom: 0.25em;
         }
         .markdown-body code {
-          background: rgba(108,99,255,0.08);
-          color: #6C63FF;
+          background: rgba(124, 108, 255, 0.1);
+          color: var(--clay-purple-dark);
           padding: 0.2em 0.4em;
-          border-radius: 4px;
+          border-radius: 6px;
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.9em;
         }
         .markdown-body pre {
-          background: #2D2B55;
+          background: var(--clay-ink);
           color: #FFFFFF;
           padding: 1em;
-          border-radius: 8px;
+          border-radius: 12px;
           overflow-x: auto;
           margin-bottom: 1em;
         }

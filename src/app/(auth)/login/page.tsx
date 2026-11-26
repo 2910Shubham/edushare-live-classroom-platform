@@ -31,16 +31,9 @@ export default function LoginPage() {
 
   const inputStyle = {
     width: '100%',
-    padding: '12px 16px',
-    borderRadius: 12,
-    border: '1px solid rgba(108, 99, 255, 0.15)',
-    background: '#FAFAFE',
+    padding: '13px 16px',
     fontSize: 15,
-    color: '#2D2B55',
     fontFamily: "'Inter', sans-serif",
-    outline: 'none',
-    transition: 'border-color 0.2s ease',
-    boxSizing: 'border-box' as const,
   };
 
   return (
@@ -51,36 +44,19 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 24,
+        padding: 20,
       }}
     >
       <PageBackground variant="auth" />
 
-      {/* Glow effect behind card */}
       <div
-        style={{
-          position: 'absolute',
-          width: 400,
-          height: 400,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          zIndex: 1,
-        }}
-      />
-
-      <div
-        className="animate-scaleIn"
+        className="clay clay-lg clay-modal"
         style={{
           position: 'relative',
           zIndex: 10,
-          background: '#FFFFFF',
-          borderRadius: 24,
-          padding: '48px 40px',
-          maxWidth: 420,
+          padding: 'clamp(28px, 5vw, 44px) clamp(22px, 5vw, 38px)',
+          maxWidth: 440,
           width: '100%',
-          boxShadow: '0 8px 40px rgba(108, 99, 255, 0.12)',
-          border: '1px solid rgba(108, 99, 255, 0.08)',
         }}
       >
         {/* Logo */}
@@ -89,21 +65,22 @@ export default function LoginPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 10,
-            marginBottom: 8,
+            gap: 12,
+            marginBottom: 10,
           }}
         >
-          <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#6C63FF" />
-            <path d="M8 22V10l8 6-8 6z" fill="white" />
-            <path d="M16 22V10l8 6-8 6z" fill="white" opacity="0.6" />
-          </svg>
+          <div className="clay-icon clay-icon-sm clay-icon-purple" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+              <path d="M8 24V8l10 8-10 8z" fill="white" />
+              <path d="M16 24V8l10 8-10 8z" fill="white" opacity="0.65" />
+            </svg>
+          </div>
           <span
             style={{
               fontSize: 26,
               fontWeight: 700,
               fontFamily: "'Plus Jakarta Sans', sans-serif",
-              color: '#6C63FF',
+              color: 'var(--clay-ink)',
             }}
           >
             EduShare
@@ -113,9 +90,9 @@ export default function LoginPage() {
         <p
           style={{
             textAlign: 'center',
-            color: '#5A5880',
+            color: 'var(--clay-ink-soft)',
             fontSize: 16,
-            marginBottom: 32,
+            marginBottom: 28,
           }}
         >
           Where classrooms come alive ✨
@@ -123,39 +100,59 @@ export default function LoginPage() {
 
         {/* Email/Password Form */}
         <form onSubmit={handleCredentialLogin} style={{ marginBottom: 20 }}>
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#2D2B55', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div style={{ marginBottom: 16 }}>
+            <label
+              htmlFor="login-email"
+              style={{
+                display: 'block',
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--clay-ink)',
+                marginBottom: 8,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}
+            >
               Email
             </label>
             <input
+              id="login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
+              className="clay-inset"
               style={inputStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#6C63FF'; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.15)'; }}
             />
           </div>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#2D2B55', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <label
+              htmlFor="login-password"
+              style={{
+                display: 'block',
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--clay-ink)',
+                marginBottom: 8,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}
+            >
               Password
             </label>
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              className="clay-inset"
               style={inputStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#6C63FF'; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(108, 99, 255, 0.15)'; }}
             />
           </div>
 
           {error && (
-            <p style={{ color: '#FF4757', fontSize: 13, marginBottom: 14, textAlign: 'center', background: '#FFF0F3', padding: '8px 12px', borderRadius: 8 }}>
+            <p className="clay-error" style={{ marginBottom: 16, textAlign: 'center' }} role="alert">
               {error}
             </p>
           )}
@@ -163,14 +160,8 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
-            style={{
-              width: '100%',
-              padding: '13px 24px',
-              fontSize: 15,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
+            className="clay-btn"
+            style={{ width: '100%' }}
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -178,42 +169,19 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(108, 99, 255, 0.1)' }} />
-          <span style={{ color: '#A8A6C8', fontSize: 13 }}>or</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(108, 99, 255, 0.1)' }} />
+          <div style={{ flex: 1, height: 1, background: 'rgba(124, 108, 255, 0.16)' }} />
+          <span style={{ color: 'var(--clay-ink-soft)', fontSize: 13, fontWeight: 500 }}>or</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(124, 108, 255, 0.16)' }} />
         </div>
 
         {/* Google Sign In */}
         <button
+          type="button"
           onClick={() => signIn('google', { callbackUrl: '/auth-redirect' })}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 12,
-            padding: '13px 24px',
-            borderRadius: 14,
-            border: '1px solid rgba(108, 99, 255, 0.15)',
-            background: 'linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%)',
-            cursor: 'pointer',
-            fontSize: 15,
-            fontWeight: 500,
-            color: '#2D2B55',
-            fontFamily: "'Inter', sans-serif",
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 8px rgba(108, 99, 255, 0.08)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 16px rgba(108, 99, 255, 0.15)';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(108, 99, 255, 0.08)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
+          className="clay-btn clay-btn-ghost"
+          style={{ width: '100%' }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -227,16 +195,16 @@ export default function LoginPage() {
             textAlign: 'center',
             marginTop: 24,
             paddingTop: 20,
-            borderTop: '1px solid rgba(108, 99, 255, 0.08)',
+            borderTop: '1px solid rgba(124, 108, 255, 0.12)',
           }}
         >
-          <p style={{ color: '#5A5880', fontSize: 14 }}>
+          <p style={{ color: 'var(--clay-ink-soft)', fontSize: 14 }}>
             New here?{' '}
             <a
               href="/register"
               style={{
-                color: '#6C63FF',
-                fontWeight: 500,
+                color: 'var(--clay-purple-dark)',
+                fontWeight: 600,
                 textDecoration: 'none',
               }}
             >
