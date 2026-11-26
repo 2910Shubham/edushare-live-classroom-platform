@@ -14,7 +14,7 @@ export default function LandingPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '20px 40px',
+          padding: '20px clamp(16px, 4vw, 40px)',
           maxWidth: 1200,
           margin: '0 auto',
         }}
@@ -36,27 +36,16 @@ export default function LandingPage() {
             EduShare
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link
-            href="/login"
-            style={{
-              padding: '10px 24px',
-              borderRadius: 12,
-              fontWeight: 500,
-              color: '#6C63FF',
-              background: 'rgba(108, 99, 255, 0.08)',
-              border: '1px solid rgba(108, 99, 255, 0.2)',
-              textDecoration: 'none',
-              fontSize: 15,
-              transition: 'all 0.2s ease',
-            }}
-          >
-            Sign In
-          </Link>
+        <div style={{ display: 'flex', flexShrink: 0 }}>
           <Link
             href="/register"
             className="btn-primary"
-            style={{ textDecoration: 'none', fontSize: 15 }}
+            style={{
+              textDecoration: 'none',
+              fontSize: 15,
+              padding: '12px 24px',
+              whiteSpace: 'nowrap',
+            }}
           >
             Get Started
           </Link>
